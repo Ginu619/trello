@@ -1,3 +1,4 @@
+
 "use client";
 
 import { addList, updateBoard, addCard } from "@/lib/data";
@@ -113,7 +114,7 @@ export function BoardView({ initialBoard }: { initialBoard: Board }) {
 
   const handleAddNewCard = async (listId: string, title: string) => {
     const optimisticCard: Card = {
-        id: `temp-card-${Date.now()}`,
+        id: `temp-card-${Date.now()}-${Math.random()}`,
         title,
         order: board.lists.find(l => l.id === listId)?.cards.length || 0,
     };
