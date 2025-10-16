@@ -1,4 +1,4 @@
-import type { Board, List, Card, User, Label, ChecklistItem } from './types';
+import type { Board, List, Card, User, Label, ChecklistItem, Comment, Activity } from './types';
 
 const users: User[] = [
   { id: 'user-1', name: 'Alex', avatarUrl: 'https://api.dicebear.com/7.x/initials/svg?seed=Alex' },
@@ -24,24 +24,24 @@ let boards: Board[] = [
         id: 'list-1',
         title: 'To Do',
         cards: [
-          { id: 'card-1', title: 'Design the new login page', order: 0, members: ['user-1'], labels: [labels[2]] },
-          { id: 'card-2', title: 'Develop API for user authentication', order: 1, members: ['user-2'], labels: [labels[0]], dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString() },
-          { id: 'card-3', title: 'Fix bug in the reporting dashboard', order: 2, members: ['user-1', 'user-2'], labels: [labels[1], labels[4]], checklist: [{id: 'check-1', text: 'Identify bug', completed: true}, {id: 'check-2', text: 'Fix bug', completed: false}]},
+          { id: 'card-1', title: 'Design the new login page', order: 0, members: ['user-1'], labels: [labels[2]], comments: [], activities: [{id: 'activity-1', userId: 'user-1', description: 'added this card to To Do', createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() }] },
+          { id: 'card-2', title: 'Develop API for user authentication', order: 1, members: ['user-2'], labels: [labels[0]], dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), comments: [], activities: [] },
+          { id: 'card-3', title: 'Fix bug in the reporting dashboard', order: 2, members: ['user-1', 'user-2'], labels: [labels[1], labels[4]], checklist: [{id: 'check-1', text: 'Identify bug', completed: true}, {id: 'check-2', text: 'Fix bug', completed: false}], comments: [], activities: []},
         ],
       },
       {
         id: 'list-2',
         title: 'In Progress',
         cards: [
-          { id: 'card-4', title: 'Implement new search functionality', order: 0, members: ['user-3'] },
+          { id: 'card-4', title: 'Implement new search functionality', order: 0, members: ['user-3'], comments: [], activities: [] },
         ],
       },
       {
         id: 'list-3',
         title: 'Done',
         cards: [
-          { id: 'card-5', title: 'Update documentation for v2.0', order: 0, labels: [labels[3]] },
-          { id: 'card-6', title: 'Release performance improvements', order: 1 },
+          { id: 'card-5', title: 'Update documentation for v2.0', order: 0, labels: [labels[3]], comments: [], activities: [] },
+          { id: 'card-6', title: 'Release performance improvements', order: 1, comments: [], activities: [] },
         ],
       },
     ],
@@ -54,7 +54,7 @@ let boards: Board[] = [
         id: 'list-4',
         title: 'Ideas',
         cards: [
-          { id: 'card-7', title: 'Social media outreach strategy', order: 0 },
+          { id: 'card-7', title: 'Social media outreach strategy', order: 0, comments: [], activities: [] },
         ],
       },
       {

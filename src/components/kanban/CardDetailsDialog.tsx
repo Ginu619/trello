@@ -1,12 +1,11 @@
 
 "use client";
 
-import type { Card, User, Label as LabelType, ChecklistItem } from "@/lib/types";
+import type { Card, User, Label as LabelType, ChecklistItem, Comment, Activity as ActivityType } from "@/lib/types";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
 } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
@@ -25,8 +24,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Checkbox } from "../ui/checkbox";
 import { Separator } from "../ui/separator";
 import { Calendar } from "../ui/calendar";
-import { format, parseISO } from "date-fns";
+import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { Progress } from "../ui/progress";
+import { useAuth } from "@/hooks/useAuth";
+import { DialogTitle } from "@radix-ui/react-dialog";
 
 interface CardDetailsDialogProps {
   card: Card;
@@ -43,6 +44,7 @@ export function CardDetailsDialog({
   onOpenChange,
   onCardUpdate,
 }: CardDetailsDialogProps) {
+  const { user: currentUser } = useAuth();
   const [card, setCard] = useState(initialCard);
   const [title, setTitle] = useState(initialCard.title);
   const [description, setDescription] = useState(initialCard.description || "");
@@ -50,6 +52,8 @@ export function CardDetailsDialog({
   const [team, setTeam] = useState<User[]>([]);
   const [availableLabels, setAvailableLabels] = useState<LabelType[]>([]);
   const [newChecklistItem, setNewChecklistItem] = useState("");
+  const [newComment, setNewComment] = useState("");
+  const [isSavingComment, setIsSavingComment] = useState(false);
   
   const { toast } = useToast();
   const descriptionEditorRef = useRef<HTMLDivElement>(null);
@@ -61,6 +65,7 @@ export function CardDetailsDialog({
       setTitle(initialCard.title);
       setDescription(initialCard.description || "");
       setIsEditingDescription(false);
+      setNewComment("");
       
       getTeamMembers().then(setTeam);
       getAvailableLabels().then(setAvailableLabels);
@@ -80,7 +85,7 @@ export function CardDetailsDialog({
 
   const handleDescriptionSave = async () => {
     setIsSaving(true);
-    const newDescription = descriptionEditorRef.current?.innerText || '';
+    const newDescription = descriptionEditorRef.current?.innerHTML || '';
     await handleUpdateCard({ description: newDescription });
     setDescription(newDescription);
     setIsEditingDescription(false);
@@ -138,6 +143,21 @@ export function CardDetailsDialog({
     handleUpdateCard({ dueDate: date?.toISOString() });
   };
 
+  const handleAddComment = async () => {
+    if (!newComment.trim() || !currentUser) return;
+    setIsSavingComment(true);
+    const newCommentObject: Comment = {
+        id: `comment-${Date.now()}`,
+        userId: currentUser.id,
+        text: newComment,
+        createdAt: new Date().toISOString()
+    };
+    const newComments = [...(card.comments || []), newCommentObject];
+    await handleUpdateCard({ comments: newComments });
+    setNewComment("");
+    setIsSavingComment(false);
+  }
+
   const applyFormat = useCallback((command: string) => {
     const editor = descriptionEditorRef.current;
     if (editor) {
@@ -148,6 +168,15 @@ export function CardDetailsDialog({
   
   const checklistProgress = (card.checklist?.length ?? 0) > 0 ? ((card.checklist?.filter(i => i.completed).length ?? 0) / card.checklist!.length) * 100 : 0;
 
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  }
+
+  const allActivities = [
+    ...(card.comments?.map(c => ({...c, type: 'comment'} as const)) || []),
+    ...(card.activities?.map(a => ({...a, type: 'activity'} as const)) || [])
+  ].sort((a, b) => parseISO(b.createdAt).getTime() - parseISO(a.createdAt).getTime());
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0">
@@ -155,13 +184,15 @@ export function CardDetailsDialog({
           <div className="flex items-start gap-3">
             <CheckSquare className="h-6 w-6 mt-1 text-muted-foreground" />
             <div className="w-full">
-              <Input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                onBlur={handleTitleBlur}
-                className="text-xl font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto"
-                aria-label="Card title"
-              />
+               <DialogTitle asChild>
+                    <Input
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        onBlur={handleTitleBlur}
+                        className="text-xl font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto"
+                        aria-label="Card title"
+                    />
+               </DialogTitle>
               <p className="text-sm text-muted-foreground">
                 in list <span className="underline">{listTitle}</span>
               </p>
@@ -271,6 +302,75 @@ export function CardDetailsDialog({
                     </div>
                  </div>
             )}
+             {/* Comments and Activity */}
+            <div className="space-y-4">
+                 <div className="flex items-center gap-3">
+                    <MessageSquare className="h-6 w-6 text-muted-foreground" />
+                    <h3 className="text-lg font-semibold">Comments and Activity</h3>
+                </div>
+                <div className="pl-9 space-y-4">
+                    <div className="flex gap-3">
+                        {currentUser && (
+                             <Avatar className="h-8 w-8">
+                                <AvatarImage src={currentUser.avatarUrl} />
+                                <AvatarFallback>{getInitials(currentUser.name)}</AvatarFallback>
+                            </Avatar>
+                        )}
+                        <div className="flex-1 space-y-2">
+                            <Textarea 
+                                placeholder="Write a comment..." 
+                                value={newComment}
+                                onChange={e => setNewComment(e.target.value)}
+                                className="w-full"
+                            />
+                            {newComment && (
+                                <Button onClick={handleAddComment} disabled={isSavingComment} size="sm">
+                                    {isSavingComment && <Loader2 className="mr-2 animate-spin" />}
+                                    Save
+                                </Button>
+                            )}
+                        </div>
+                    </div>
+                    <div className="space-y-4">
+                        {allActivities.map(activity => {
+                             const member = team.find(m => m.id === activity.userId);
+                             if (!member) return null;
+                            
+                             if (activity.type === 'comment') {
+                                return (
+                                    <div key={activity.id} className="flex items-start gap-3">
+                                         <Avatar className="h-8 w-8">
+                                            <AvatarImage src={member.avatarUrl} />
+                                            <AvatarFallback>{getInitials(member.name)}</AvatarFallback>
+                                        </Avatar>
+                                        <div>
+                                            <p className="text-sm">
+                                               <span className="font-semibold">{member.name}</span>
+                                               <span className="text-xs text-muted-foreground ml-2">{formatDistanceToNow(parseISO(activity.createdAt), { addSuffix: true })}</span>
+                                            </p>
+                                            <div className="p-2 mt-1 bg-muted/50 rounded-md text-sm">{activity.text}</div>
+                                        </div>
+                                    </div>
+                                )
+                             }
+                             return (
+                                <div key={activity.id} className="flex items-start gap-3">
+                                    <Avatar className="h-8 w-8">
+                                        <AvatarImage src={member.avatarUrl} />
+                                        <AvatarFallback>{getInitials(member.name)}</AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                        <p className="text-sm">
+                                            <span className="font-semibold">{member.name}</span> {activity.description}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">{formatDistanceToNow(parseISO(activity.createdAt), { addSuffix: true })}</p>
+                                    </div>
+                                </div>
+                             )
+                        })}
+                    </div>
+                </div>
+            </div>
           </div>
 
           {/* Sidebar */}
@@ -344,33 +444,6 @@ export function CardDetailsDialog({
               </div>
 
             <Separator />
-            
-            <div className="space-y-4">
-                 <div className="flex items-center gap-3">
-                    <MessageSquare className="h-6 w-6 text-muted-foreground" />
-                    <h3 className="text-lg font-semibold">Comments and activity</h3>
-                </div>
-                <div className="flex gap-3">
-                    <Avatar className="h-8 w-8">
-                        <AvatarFallback>U</AvatarFallback>
-                    </Avatar>
-                    <Textarea placeholder="Write a comment..." className="flex-1" rows={1}/>
-                </div>
-            </div>
-
-            <div className="space-y-4 pl-9">
-                 <div className="flex items-start gap-3">
-                    <Avatar className="h-8 w-8">
-                        <AvatarFallback>B</AvatarFallback>
-                    </Avatar>
-                    <div>
-                        <p className="text-sm">
-                           <span className="font-semibold">Bony</span> added this card to {listTitle}
-                        </p>
-                        <p className="text-xs text-muted-foreground">12 hours ago</p>
-                    </div>
-                </div>
-            </div>
           </div>
         </div>
       </DialogContent>

@@ -7,6 +7,8 @@ export type Card = {
   labels?: Label[];
   checklist?: ChecklistItem[];
   dueDate?: string;
+  comments?: Comment[];
+  activities?: Activity[];
 };
 
 export type Label = {
@@ -37,4 +39,18 @@ export type User = {
   id: string;
   name: string;
   avatarUrl: string;
+}
+
+export type Comment = {
+    id: string;
+    userId: string;
+    text: string;
+    createdAt: string;
+}
+
+export type Activity = {
+    id: string;
+    userId: string;
+    description: string;
+    createdAt: string;
 }
