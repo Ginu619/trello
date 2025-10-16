@@ -1,3 +1,4 @@
+import { Header } from "@/components/Header";
 import { BoardView } from "@/components/kanban/BoardView";
 import { getBoard } from "@/lib/data";
 import { notFound } from "next/navigation";
@@ -15,5 +16,12 @@ export default async function BoardPage({ params }: BoardPageProps) {
     notFound();
   }
 
-  return <BoardView initialBoard={board} />;
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-grow">
+        <BoardView initialBoard={board} />
+      </main>
+    </div>
+  );
 }
