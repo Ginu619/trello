@@ -11,7 +11,7 @@ import {
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { useEffect, useState, type FormEvent, useRef } from "react";
+import { useEffect, useState, type FormEvent, useRef, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { updateCard } from "@/lib/data";
 import {
@@ -106,10 +106,12 @@ export function CardDetailsDialog({
     }
   };
 
-  const handleFormat = (command: string, value?: string) => {
+  const applyFormat = useCallback((command: string, value?: string) => {
+    const editor = descriptionEditorRef.current;
+    if (!editor) return;
+    editor.focus();
     document.execCommand(command, false, value);
-    descriptionEditorRef.current?.focus();
-  };
+  }, []);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -171,17 +173,18 @@ export function CardDetailsDialog({
                 {isEditingDescription ? (
                   <div className="bg-input/50 rounded-md">
                     <div className="flex items-center gap-1 p-2 border-b border-border">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleFormat('formatBlock', 'p')}><Type className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleFormat('bold')}><Bold className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleFormat('italic')}><Italic className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleFormat('insertUnorderedList')}><List className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleFormat('insertOrderedList')}><ListOrdered className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleFormat('createLink', window.prompt("Enter URL:") || undefined)}><Link2 className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleFormat('formatBlock', 'pre')}><Code className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onMouseDown={(e) => { e.preventDefault(); applyFormat('formatBlock', 'p')}}><Type className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onMouseDown={(e) => { e.preventDefault(); applyFormat('bold')}}><Bold className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onMouseDown={(e) => { e.preventDefault(); applyFormat('italic')}}><Italic className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onMouseDown={(e) => { e.preventDefault(); applyFormat('insertUnorderedList')}}><List className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onMouseDown={(e) => { e.preventDefault(); applyFormat('insertOrderedList')}}><ListOrdered className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onMouseDown={(e) => { e.preventDefault(); const url = window.prompt("Enter URL:"); if (url) applyFormat('createLink', url);}}><Link2 className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onMouseDown={(e) => { e.preventDefault(); applyFormat('formatBlock', 'pre')}}><Code className="h-4 w-4" /></Button>
                    </div>
                     <div
                         ref={descriptionEditorRef}
                         contentEditable
+                        suppressContentEditableWarning
                         dangerouslySetInnerHTML={{ __html: description }}
                         className="min-h-[150px] p-3 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                     />
@@ -199,7 +202,7 @@ export function CardDetailsDialog({
                   <div
                     onClick={() => setIsEditingDescription(true)}
                     className={cn(
-                      "min-h-[100px] w-full rounded-md bg-input/40 p-3 text-sm hover:bg-input/60 cursor-pointer",
+                      "min-h-[100px] w-full rounded-md bg-input/40 p-3 text-sm hover:bg-input/60 cursor-pointer prose prose-sm prose-invert max-w-none",
                       !description && "text-muted-foreground"
                     )}
                     dangerouslySetInnerHTML={{ __html: description || "Add a more detailed description..."}}
