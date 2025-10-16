@@ -1,7 +1,7 @@
 
 "use client";
 
-import type { Card } from "@/lib/types";
+import type { Card, User, Label as LabelType, ChecklistItem } from "@/lib/types";
 import {
   Dialog,
   DialogContent,
@@ -13,30 +13,20 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useEffect, useState, type FormEvent, useRef, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { updateCard } from "@/lib/data";
+import { updateCard, getTeamMembers, getAvailableLabels } from "@/lib/data";
 import {
-  Activity,
-  Bold,
-  Check,
-  CheckSquare,
-  Clock,
-  Code,
-  Italic,
-  Link2,
-  List,
-  ListOrdered,
-  Loader2,
-  Paperclip,
-  Plus,
-  Tag,
-  Type,
-  UserPlus,
-  Users,
-  MessageSquare,
+  Activity, Bold, Check, CheckSquare, Clock, Code, Italic, Link2, List, ListOrdered, Loader2,
+  Paperclip, Plus, Tag, Type, UserPlus, Users, MessageSquare, X
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Textarea } from "../ui/textarea";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Checkbox } from "../ui/checkbox";
+import { Separator } from "../ui/separator";
+import { Calendar } from "../ui/calendar";
+import { format, parseISO } from "date-fns";
+import { Progress } from "../ui/progress";
 
 interface CardDetailsDialogProps {
   card: Card;
@@ -47,71 +37,116 @@ interface CardDetailsDialogProps {
 }
 
 export function CardDetailsDialog({
-  card,
+  card: initialCard,
   listTitle,
   isOpen,
   onOpenChange,
   onCardUpdate,
 }: CardDetailsDialogProps) {
-  const [title, setTitle] = useState(card.title);
-  const [description, setDescription] = useState(card.description || "");
+  const [card, setCard] = useState(initialCard);
+  const [title, setTitle] = useState(initialCard.title);
+  const [description, setDescription] = useState(initialCard.description || "");
   const [isSaving, setIsSaving] = useState(false);
+  const [team, setTeam] = useState<User[]>([]);
+  const [availableLabels, setAvailableLabels] = useState<LabelType[]>([]);
+  const [newChecklistItem, setNewChecklistItem] = useState("");
+  
   const { toast } = useToast();
   const descriptionEditorRef = useRef<HTMLDivElement>(null);
   const [isEditingDescription, setIsEditingDescription] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
-      setTitle(card.title);
-      setDescription(card.description || "");
+      setCard(initialCard);
+      setTitle(initialCard.title);
+      setDescription(initialCard.description || "");
       setIsEditingDescription(false);
+      
+      getTeamMembers().then(setTeam);
+      getAvailableLabels().then(setAvailableLabels);
     }
-  }, [isOpen, card]);
+  }, [isOpen, initialCard]);
+  
+  const handleUpdateCard = async (updates: Partial<Card>) => {
+    try {
+        const updatedCard = await updateCard("board-1", card.id, updates);
+        setCard(updatedCard);
+        onCardUpdate(updatedCard);
+        return updatedCard;
+    } catch (error) {
+        toast({ title: "Error", description: "Failed to update card.", variant: "destructive" });
+    }
+  }
 
   const handleDescriptionSave = async () => {
     setIsSaving(true);
-    try {
-      const newDescription = descriptionEditorRef.current?.innerHTML || '';
-      const updatedCard = await updateCard("board-1", card.id, {
-        description: newDescription,
-      });
-      onCardUpdate(updatedCard);
-      setDescription(newDescription);
-      toast({ title: "Description updated successfully!" });
-      setIsEditingDescription(false);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update description.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSaving(false);
-    }
+    const newDescription = descriptionEditorRef.current?.innerText || '';
+    await handleUpdateCard({ description: newDescription });
+    setDescription(newDescription);
+    setIsEditingDescription(false);
+    setIsSaving(false);
+    toast({ title: "Description updated." });
   };
 
   const handleTitleBlur = async () => {
     if (title === card.title) return;
-    try {
-      const updatedCard = await updateCard("board-1", card.id, { title });
-      onCardUpdate(updatedCard);
-      toast({ title: "Card title updated." });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update card title.",
-        variant: "destructive",
-      });
-      setTitle(card.title); // Revert on error
-    }
+    await handleUpdateCard({ title });
+    toast({ title: "Card title updated." });
   };
 
-  const applyFormat = useCallback((command: string, value?: string) => {
+  const handleMemberToggle = (memberId: string) => {
+    const members = card.members || [];
+    const newMembers = members.includes(memberId)
+      ? members.filter(id => id !== memberId)
+      : [...members, memberId];
+    handleUpdateCard({ members: newMembers });
+  };
+
+  const handleLabelToggle = (labelId: string) => {
+    const labels = card.labels || [];
+    const newLabels = labels.some(l => l.id === labelId)
+      ? labels.filter(l => l.id !== labelId)
+      : [...labels, availableLabels.find(l => l.id === labelId)!];
+    handleUpdateCard({ labels: newLabels });
+  };
+  
+  const handleAddChecklistItem = () => {
+    if (!newChecklistItem.trim()) return;
+    const newItem: ChecklistItem = {
+      id: `check-${Date.now()}`,
+      text: newChecklistItem,
+      completed: false,
+    };
+    const newChecklist = [...(card.checklist || []), newItem];
+    handleUpdateCard({ checklist: newChecklist });
+    setNewChecklistItem("");
+  };
+
+  const handleChecklistItemToggle = (itemId: string) => {
+    const newChecklist = card.checklist?.map(item =>
+      item.id === itemId ? { ...item, completed: !item.completed } : item
+    ) || [];
+    handleUpdateCard({ checklist: newChecklist });
+  };
+
+  const handleChecklistItemDelete = (itemId: string) => {
+    const newChecklist = card.checklist?.filter(item => item.id !== itemId) || [];
+    handleUpdateCard({ checklist: newChecklist });
+  };
+
+  const handleDueDateSelect = (date: Date | undefined) => {
+    handleUpdateCard({ dueDate: date?.toISOString() });
+  };
+
+  const applyFormat = useCallback((command: string) => {
     const editor = descriptionEditorRef.current;
-    if (!editor) return;
-    editor.focus();
-    document.execCommand(command, false, value);
+    if (editor) {
+      editor.focus();
+      document.execCommand(command, false);
+    }
   }, []);
+  
+  const checklistProgress = (card.checklist?.length ?? 0) > 0 ? ((card.checklist?.filter(i => i.completed).length ?? 0) / card.checklist!.length) * 100 : 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -120,15 +155,13 @@ export function CardDetailsDialog({
           <div className="flex items-start gap-3">
             <CheckSquare className="h-6 w-6 mt-1 text-muted-foreground" />
             <div className="w-full">
-              <DialogTitle>
-                <Input
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  onBlur={handleTitleBlur}
-                  className="text-xl font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto"
-                  aria-label="Card title"
-                />
-              </DialogTitle>
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                onBlur={handleTitleBlur}
+                className="text-xl font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto"
+                aria-label="Card title"
+              />
               <p className="text-sm text-muted-foreground">
                 in list <span className="underline">{listTitle}</span>
               </p>
@@ -139,47 +172,55 @@ export function CardDetailsDialog({
         <div className="flex-grow grid grid-cols-1 md:grid-cols-3 gap-8 p-4 overflow-y-auto">
           {/* Main content */}
           <div className="md:col-span-2 space-y-6">
-            {/* Action Buttons */}
-            <div>
-              <h3 className="text-sm font-semibold text-muted-foreground mb-2">
-                Add to card
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                <Button variant="secondary" size="sm">
-                  <Users className="mr-2" /> Members
-                </Button>
-                <Button variant="secondary" size="sm">
-                  <Tag className="mr-2" /> Labels
-                </Button>
-                <Button variant="secondary" size="sm">
-                  <CheckSquare className="mr-2" /> Checklist
-                </Button>
-                <Button variant="secondary" size="sm">
-                  <Clock className="mr-2" /> Dates
-                </Button>
-                <Button variant="secondary" size="sm">
-                  <Paperclip className="mr-2" /> Attachment
-                </Button>
-              </div>
+            <div className="flex items-center gap-6">
+              {card.members && card.members.length > 0 && (
+                <div>
+                  <h3 className="text-xs font-semibold text-muted-foreground mb-2">Members</h3>
+                  <div className="flex -space-x-2">
+                    {card.members.map(memberId => {
+                      const member = team.find(m => m.id === memberId);
+                      return member ? (
+                        <Avatar key={memberId} className="h-8 w-8 border-2 border-background">
+                           <AvatarImage src={member.avatarUrl} />
+                           <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                      ) : null;
+                    })}
+                  </div>
+                </div>
+              )}
+               {card.labels && card.labels.length > 0 && (
+                <div>
+                  <h3 className="text-xs font-semibold text-muted-foreground mb-2">Labels</h3>
+                  <div className="flex flex-wrap gap-1">
+                    {card.labels.map(label => (
+                        <div key={label.id} className={cn("px-2 py-1 rounded-sm text-xs font-semibold text-white", label.color)}>{label.text}</div>
+                    ))}
+                </div>
+                </div>
+              )}
+              {card.dueDate && (
+                 <div>
+                  <h3 className="text-xs font-semibold text-muted-foreground mb-2">Due date</h3>
+                  <p className="text-sm">{format(parseISO(card.dueDate), "MMM d, yyyy")}</p>
+                </div>
+              )}
             </div>
 
             {/* Description */}
             <div className="space-y-2">
-                <div className="flex items-center gap-3">
-                    <List className="h-6 w-6 text-muted-foreground" />
-                    <h3 className="text-lg font-semibold">Description</h3>
-                </div>
+              <div className="flex items-center gap-3">
+                <List className="h-6 w-6 text-muted-foreground" />
+                <h3 className="text-lg font-semibold">Description</h3>
+              </div>
               <div className="pl-9">
                 {isEditingDescription ? (
                   <div className="bg-input/50 rounded-md">
                     <div className="flex items-center gap-1 p-2 border-b border-border">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onMouseDown={(e) => { e.preventDefault(); applyFormat('formatBlock', 'p')}}><Type className="h-4 w-4" /></Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onMouseDown={(e) => { e.preventDefault(); applyFormat('bold')}}><Bold className="h-4 w-4" /></Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onMouseDown={(e) => { e.preventDefault(); applyFormat('italic')}}><Italic className="h-4 w-4" /></Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onMouseDown={(e) => { e.preventDefault(); applyFormat('insertUnorderedList')}}><List className="h-4 w-4" /></Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onMouseDown={(e) => { e.preventDefault(); applyFormat('insertOrderedList')}}><ListOrdered className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onMouseDown={(e) => { e.preventDefault(); const url = window.prompt("Enter URL:"); if (url) applyFormat('createLink', url);}}><Link2 className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onMouseDown={(e) => { e.preventDefault(); applyFormat('formatBlock', 'pre')}}><Code className="h-4 w-4" /></Button>
                    </div>
                     <div
                         ref={descriptionEditorRef}
@@ -210,11 +251,100 @@ export function CardDetailsDialog({
                 )}
               </div>
             </div>
+
+            {/* Checklist */}
+            {card.checklist && card.checklist.length > 0 && (
+                 <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                        <CheckSquare className="h-6 w-6 text-muted-foreground" />
+                        <h3 className="text-lg font-semibold">Checklist</h3>
+                    </div>
+                    <div className="pl-9 space-y-2">
+                        <Progress value={checklistProgress} className="h-2" />
+                        {card.checklist.map(item => (
+                            <div key={item.id} className="flex items-center gap-2 group">
+                                <Checkbox id={`check-${item.id}`} checked={item.completed} onCheckedChange={() => handleChecklistItemToggle(item.id)} />
+                                <label htmlFor={`check-${item.id}`} className={cn("flex-grow text-sm", item.completed && "line-through text-muted-foreground")}>{item.text}</label>
+                                <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => handleChecklistItemDelete(item.id)}><X className="h-4 w-4" /></Button>
+                            </div>
+                        ))}
+                    </div>
+                 </div>
+            )}
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Comments and Activity */}
+          <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-muted-foreground">
+                Add to card
+              </h3>
+              <div className="flex flex-col gap-2">
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button variant="secondary" size="sm" className="justify-start"><Users className="mr-2" /> Members</Button>
+                    </PopoverTrigger>
+                    <PopoverContent>
+                        <h4 className="text-sm font-semibold mb-2">Team Members</h4>
+                        <div className="space-y-2">
+                            {team.map(member => (
+                                <div key={member.id} className="flex items-center gap-2">
+                                    <Checkbox id={`member-${member.id}`} checked={card.members?.includes(member.id)} onCheckedChange={() => handleMemberToggle(member.id)} />
+                                    <Avatar className="h-8 w-8"><AvatarImage src={member.avatarUrl} /><AvatarFallback>{member.name.charAt(0)}</AvatarFallback></Avatar>
+                                    <Label htmlFor={`member-${member.id}`}>{member.name}</Label>
+                                </div>
+                            ))}
+                        </div>
+                    </PopoverContent>
+                </Popover>
+
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button variant="secondary" size="sm" className="justify-start"><Tag className="mr-2" /> Labels</Button>
+                    </PopoverTrigger>
+                    <PopoverContent>
+                        <h4 className="text-sm font-semibold mb-2">Labels</h4>
+                        <div className="space-y-2">
+                            {availableLabels.map(label => (
+                                <div key={label.id} className="flex items-center gap-2">
+                                    <Checkbox id={`label-${label.id}`} checked={card.labels?.some(l => l.id === label.id)} onCheckedChange={() => handleLabelToggle(label.id)} />
+                                    <div className={cn("px-2 py-1 rounded-sm text-xs font-semibold text-white", label.color)}>{label.text}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </PopoverContent>
+                </Popover>
+                
+                <Popover>
+                    <PopoverTrigger asChild>
+                       <Button variant="secondary" size="sm" className="justify-start"><CheckSquare className="mr-2" /> Checklist</Button>
+                    </PopoverTrigger>
+                    <PopoverContent>
+                        <h4 className="text-sm font-semibold mb-2">Add Checklist Item</h4>
+                        <div className="flex gap-2">
+                        <Input value={newChecklistItem} onChange={(e) => setNewChecklistItem(e.target.value)} placeholder="Add an item" />
+                        <Button onClick={handleAddChecklistItem}>Add</Button>
+                        </div>
+                    </PopoverContent>
+                </Popover>
+                
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button variant="secondary" size="sm" className="justify-start"><Clock className="mr-2" /> Dates</Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="p-0">
+                       <Calendar
+                        mode="single"
+                        selected={card.dueDate ? parseISO(card.dueDate) : undefined}
+                        onSelect={handleDueDateSelect}
+                       />
+                    </PopoverContent>
+                </Popover>
+
+                <Button variant="secondary" size="sm" className="justify-start"><Paperclip className="mr-2" /> Attachment</Button>
+              </div>
+
+            <Separator />
+            
             <div className="space-y-4">
                  <div className="flex items-center gap-3">
                     <MessageSquare className="h-6 w-6 text-muted-foreground" />

@@ -3,6 +3,22 @@ export type Card = {
   title: string;
   description?: string;
   order: number;
+  members?: string[];
+  labels?: Label[];
+  checklist?: ChecklistItem[];
+  dueDate?: string;
+};
+
+export type Label = {
+  id: string;
+  text: string;
+  color: string;
+};
+
+export type ChecklistItem = {
+  id: string;
+  text: string;
+  completed: boolean;
 };
 
 export type List = {
@@ -16,3 +32,9 @@ export type Board = {
   title: string;
   lists: List[];
 };
+
+export type User = {
+  id: string;
+  name: string;
+  avatarUrl: string;
+}

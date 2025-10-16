@@ -1,4 +1,19 @@
-import type { Board, List, Card } from './types';
+import type { Board, List, Card, User, Label, ChecklistItem } from './types';
+
+const users: User[] = [
+  { id: 'user-1', name: 'Alex', avatarUrl: 'https://api.dicebear.com/7.x/initials/svg?seed=Alex' },
+  { id: 'user-2', name: 'Beth', avatarUrl: 'https://api.dicebear.com/7.x/initials/svg?seed=Beth' },
+  { id: 'user-3', name: 'Chris', avatarUrl: 'https://api.dicebear.com/7.x/initials/svg?seed=Chris' },
+];
+
+const labels: Label[] = [
+    { id: 'label-1', text: 'Feature', color: 'bg-green-500' },
+    { id: 'label-2', text: 'Bug', color: 'bg-red-500' },
+    { id: 'label-3', text: 'Design', color: 'bg-blue-500' },
+    { id: 'label-4', text: 'Docs', color: 'bg-yellow-500' },
+    { id: 'label-5', text: 'Urgent', color: 'bg-purple-500' },
+];
+
 
 let boards: Board[] = [
   {
@@ -9,23 +24,23 @@ let boards: Board[] = [
         id: 'list-1',
         title: 'To Do',
         cards: [
-          { id: 'card-1', title: 'Design the new login page', order: 0 },
-          { id: 'card-2', title: 'Develop API for user authentication', order: 1 },
-          { id: 'card-3', title: 'Fix bug in the reporting dashboard', order: 2 },
+          { id: 'card-1', title: 'Design the new login page', order: 0, members: ['user-1'], labels: [labels[2]] },
+          { id: 'card-2', title: 'Develop API for user authentication', order: 1, members: ['user-2'], labels: [labels[0]], dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString() },
+          { id: 'card-3', title: 'Fix bug in the reporting dashboard', order: 2, members: ['user-1', 'user-2'], labels: [labels[1], labels[4]], checklist: [{id: 'check-1', text: 'Identify bug', completed: true}, {id: 'check-2', text: 'Fix bug', completed: false}]},
         ],
       },
       {
         id: 'list-2',
         title: 'In Progress',
         cards: [
-          { id: 'card-4', title: 'Implement new search functionality', order: 0 },
+          { id: 'card-4', title: 'Implement new search functionality', order: 0, members: ['user-3'] },
         ],
       },
       {
         id: 'list-3',
         title: 'Done',
         cards: [
-          { id: 'card-5', title: 'Update documentation for v2.0', order: 0 },
+          { id: 'card-5', title: 'Update documentation for v2.0', order: 0, labels: [labels[3]] },
           { id: 'card-6', title: 'Release performance improvements', order: 1 },
         ],
       },
@@ -58,6 +73,16 @@ let boards: Board[] = [
 
 // Simulate API latency
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+export async function getTeamMembers(): Promise<User[]> {
+    await delay(50);
+    return users;
+}
+
+export async function getAvailableLabels(): Promise<Label[]> {
+    await delay(50);
+    return labels;
+}
 
 export async function getBoards(): Promise<Board[]> {
   await delay(100);
