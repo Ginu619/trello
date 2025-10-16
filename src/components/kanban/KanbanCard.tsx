@@ -83,7 +83,9 @@ export function KanbanCard({
             {card.labels && card.labels.length > 0 && (
                 <div className="flex flex-wrap gap-1">
                     {card.labels.map(label => (
-                        <div key={label.id} className={cn("w-10 h-2 rounded-full", label.color)}></div>
+                        <span key={label.id} className={cn("px-2 py-1 rounded text-xs font-semibold text-white", label.color)}>
+                            {label.text}
+                        </span>
                     ))}
                 </div>
             )}
