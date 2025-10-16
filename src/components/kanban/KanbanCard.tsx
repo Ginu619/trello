@@ -8,8 +8,9 @@ import { CardDetailsDialog } from "./CardDetailsDialog";
 import { cn } from "@/lib/utils";
 import { Badge } from "../ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Clock, CheckSquare } from "lucide-react";
+import { Clock, CheckSquare, Edit, Trash2 } from "lucide-react";
 import { format } from 'date-fns';
+import { Button } from "../ui/button";
 
 interface KanbanCardProps {
   card: Card;
@@ -62,48 +63,55 @@ export function KanbanCard({
   const completedChecklistItems = card.checklist?.filter(item => item.completed).length || 0;
   const totalChecklistItems = card.checklist?.length || 0;
 
+  const openDialog = () => setIsDialogOpen(true);
 
   return (
     <>
-      <UICard
-        draggable
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-        onDragOver={handleDragOver}
-        onDragEnter={handleDragEnter}
-        onDragLeave={handleDragLeave}
-        onClick={() => setIsDialogOpen(true)}
-        className={cn(
-          "p-3 cursor-pointer hover:bg-muted/80 transition-colors bg-muted/40",
-          isDragged && "opacity-50 ring-2 ring-primary",
-          isDraggingOver && !isDragged && "ring-2 ring-accent"
-        )}
-      >
-        <CardContent className="p-0 space-y-2">
-            {card.labels && card.labels.length > 0 && (
-                <div className="flex flex-wrap gap-1">
-                    {card.labels.map(label => (
-                        <div key={label.id} className={cn("h-2 w-10 rounded-full", label.color)} />
-                    ))}
-                </div>
-            )}
-          <p className="text-sm">{card.title}</p>
-          <div className="flex justify-between items-center text-muted-foreground">
-             <div className="flex items-center gap-2 flex-wrap">
-                {totalChecklistItems > 0 && (
-                     <Badge variant="outline" className={cn("flex items-center gap-1 text-xs", completedChecklistItems === totalChecklistItems && "bg-green-500/20 text-green-300 border-green-500/30")}>
-                        <CheckSquare className="h-3 w-3" />
-                        {completedChecklistItems}/{totalChecklistItems}
-                    </Badge>
-                )}
-                {card.dueDate && (
-                    <Badge variant="outline" className="flex items-center gap-1 text-xs">
-                        <Clock className="h-3 w-3" />
-                        {format(new Date(card.dueDate), "MMM d")}
-                    </Badge>
-                )}
-             </div>
-              {card.members && card.members.length > 0 && (
+      <div className="relative group/card">
+        <UICard
+          draggable
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onDragOver={handleDragOver}
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+          onClick={openDialog}
+          className={cn(
+            "p-3 cursor-pointer transition-colors bg-card/90",
+            isDragged && "opacity-50 ring-2 ring-primary",
+            isDraggingOver && !isDragged && "ring-2 ring-accent"
+          )}
+        >
+          <CardContent className="p-0 space-y-2">
+              {card.labels && card.labels.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                      {card.labels.map(label => (
+                          <div key={label.id} className={cn("h-2 w-10 rounded-sm", label.color)} title={label.text} />
+                      ))}
+                  </div>
+              )}
+            <p className="text-sm font-medium text-foreground">{card.title}</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              {totalChecklistItems > 0 && (
+                   <Badge variant="outline" className={cn("flex items-center gap-1.5 text-xs px-2 py-1 leading-none rounded-md", 
+                     completedChecklistItems === totalChecklistItems && totalChecklistItems > 0 
+                       ? "bg-green-600/30 text-green-200 border-green-600/50" 
+                       : "bg-muted text-muted-foreground border-border"
+                   )}>
+                      <CheckSquare className="h-3 w-3" />
+                      {completedChecklistItems}/{totalChecklistItems}
+                  </Badge>
+              )}
+              {card.dueDate && (
+                  <Badge variant="outline" className="flex items-center gap-1.5 text-xs px-2 py-1 leading-none rounded-md bg-muted text-muted-foreground border-border">
+                      <Clock className="h-3 w-3" />
+                      {format(new Date(card.dueDate), "dd MMM")}
+                  </Badge>
+              )}
+            </div>
+            
+            {card.members && card.members.length > 0 && (
+              <div className="flex justify-end pt-1">
                 <div className="flex -space-x-2">
                     {card.members.map(memberId => (
                         <Avatar key={memberId} className="h-6 w-6 border-2 border-background">
@@ -112,10 +120,19 @@ export function KanbanCard({
                         </Avatar>
                     ))}
                 </div>
-              )}
-          </div>
-        </CardContent>
-      </UICard>
+              </div>
+            )}
+          </CardContent>
+        </UICard>
+        <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover/card:opacity-100 transition-opacity">
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={openDialog}>
+                <Edit className="h-4 w-4" />
+            </Button>
+             <Button variant="ghost" size="icon" className="h-7 w-7">
+                <Trash2 className="h-4 w-4" />
+            </Button>
+        </div>
+      </div>
       <CardDetailsDialog
         card={card}
         listTitle={listTitle}

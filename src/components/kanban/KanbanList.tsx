@@ -1,8 +1,9 @@
+
 "use client";
 
 import type { Card, List } from "@/lib/types";
 import { KanbanCard } from "./KanbanCard";
-import { PlusCircle, MoreHorizontal } from "lucide-react";
+import { Plus, MoreHorizontal, ArrowRightLeft } from "lucide-react";
 import { Button } from "../ui/button";
 import { useState } from "react";
 import { Textarea } from "../ui/textarea";
@@ -51,18 +52,23 @@ export function KanbanList({
 
   return (
     <div
-      className="w-72 flex-shrink-0 h-full flex flex-col bg-card/60 backdrop-blur-sm rounded-lg shadow-sm"
+      className="w-72 flex-shrink-0 h-full flex flex-col bg-card/80 rounded-xl shadow-sm"
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
-      <div className="flex items-center justify-between p-3 border-b">
-        <h2 className="font-semibold">{list.title}</h2>
-        <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer">
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
+      <div className="flex items-center justify-between p-3 border-b border-border">
+        <h2 className="font-semibold text-foreground">{list.title}</h2>
+        <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer">
+              <ArrowRightLeft className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+        </div>
       </div>
       <div className="flex-grow p-2 overflow-y-auto space-y-2">
-        {list.cards.map((card) => (
+        {list.cards.sort((a,b) => a.order - b.order).map((card) => (
           <KanbanCard
             key={card.id}
             card={card}
@@ -77,22 +83,22 @@ export function KanbanList({
         ))}
 
         {isAdding ? (
-            <div className="space-y-2">
+            <div className="space-y-2 p-1">
                 <Textarea 
                     placeholder="Enter a title for this card..."
                     value={newCardTitle}
                     onChange={e => setNewCardTitle(e.target.value)}
                     autoFocus
-                    className="min-h-[60px]"
+                    className="min-h-[60px] bg-input/80"
                 />
                 <div className="flex items-center gap-2">
-                    <Button onClick={handleAddCard}>Add card</Button>
-                    <Button variant="ghost" onClick={() => setIsAdding(false)}>Cancel</Button>
+                    <Button onClick={handleAddCard} size="sm">Add card</Button>
+                    <Button variant="ghost" size="sm" onClick={() => setIsAdding(false)}>Cancel</Button>
                 </div>
             </div>
         ) : (
-             <Button variant="ghost" className="w-full justify-start" onClick={() => setIsAdding(true)}>
-                <PlusCircle className="mr-2 h-4 w-4" />
+             <Button variant="ghost" className="w-full justify-start mt-1" onClick={() => setIsAdding(true)}>
+                <Plus className="mr-2 h-4 w-4" />
                 Add a card
             </Button>
         )}
