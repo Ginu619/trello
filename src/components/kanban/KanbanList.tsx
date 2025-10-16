@@ -14,6 +14,7 @@ interface KanbanListProps {
   onDragEnd: () => void;
   onDragEnter: (listId: string, cardId: string | null) => void;
   onAddNewCard: (listId: string, title: string) => Promise<void>;
+  onCardUpdate: (updatedCard: Card) => void;
   draggedCardId?: string | null;
 }
 
@@ -24,6 +25,7 @@ export function KanbanList({
   onDragEnd,
   onDragEnter,
   onAddNewCard,
+  onCardUpdate,
   draggedCardId,
 }: KanbanListProps) {
     const [isAdding, setIsAdding] = useState(false);
@@ -65,10 +67,12 @@ export function KanbanList({
             key={card.id}
             card={card}
             listId={list.id}
+            listTitle={list.title}
             isDragged={card.id === draggedCardId}
             onDragStart={onDragStart}
             onDragEnd={onDragEnd}
             onDragEnter={onDragEnter}
+            onCardUpdate={onCardUpdate}
           />
         ))}
 

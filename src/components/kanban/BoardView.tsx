@@ -153,6 +153,20 @@ export function BoardView({ initialBoard }: { initialBoard: Board }) {
     }
   }
 
+  const handleCardUpdate = (updatedCard: Card) => {
+    setBoard(b => {
+        const newBoard = JSON.parse(JSON.stringify(b));
+        for (const list of newBoard.lists) {
+            const cardIndex = list.cards.findIndex((c: Card) => c.id === updatedCard.id);
+            if (cardIndex !== -1) {
+                list.cards[cardIndex] = updatedCard;
+                break;
+            }
+        }
+        return newBoard;
+    });
+  }
+
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem)]">
         <div className="p-4 bg-background/80 backdrop-blur-sm border-b">
@@ -169,6 +183,7 @@ export function BoardView({ initialBoard }: { initialBoard: Board }) {
               onDragEnd={handleDragEnd}
               onDragEnter={handleDragEnter}
               onAddNewCard={handleAddNewCard}
+              onCardUpdate={handleCardUpdate}
               draggedCardId={dragState?.cardId}
             />
           ))}

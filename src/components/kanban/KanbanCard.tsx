@@ -9,19 +9,23 @@ import { cn } from "@/lib/utils";
 interface KanbanCardProps {
   card: Card;
   listId: string;
+  listTitle: string;
   isDragged: boolean;
   onDragStart: (cardId: string, listId: string) => void;
   onDragEnd: () => void;
   onDragEnter: (listId: string, cardId: string) => void;
+  onCardUpdate: (updatedCard: Card) => void;
 }
 
 export function KanbanCard({
   card,
   listId,
+  listTitle,
   isDragged,
   onDragStart,
   onDragEnd,
   onDragEnter,
+  onCardUpdate,
 }: KanbanCardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
@@ -72,8 +76,10 @@ export function KanbanCard({
       </UICard>
       <CardDetailsDialog
         card={card}
+        listTitle={listTitle}
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
+        onCardUpdate={onCardUpdate}
       />
     </>
   );
