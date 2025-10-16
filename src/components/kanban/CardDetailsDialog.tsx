@@ -6,6 +6,7 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
+  DialogTitle,
 } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
@@ -27,7 +28,6 @@ import { Calendar } from "../ui/calendar";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { Progress } from "../ui/progress";
 import { useAuth } from "@/hooks/useAuth";
-import { DialogTitle } from "@radix-ui/react-dialog";
 
 interface CardDetailsDialogProps {
   card: Card;
@@ -161,13 +161,9 @@ export function CardDetailsDialog({
     setIsSavingComment(false);
   }
 
-  const applyFormat = useCallback((command: string) => {
-    const editor = descriptionEditorRef.current;
-    if (editor) {
-      editor.focus();
-      document.execCommand(command, false);
-    }
-  }, []);
+  const applyFormat = (command: string) => {
+    document.execCommand(command, false);
+  };
   
   const checklistProgress = (card.checklist?.length ?? 0) > 0 ? ((card.checklist?.filter(i => i.completed).length ?? 0) / card.checklist!.length) * 100 : 0;
 
@@ -261,6 +257,7 @@ export function CardDetailsDialog({
                         contentEditable
                         suppressContentEditableWarning
                         dangerouslySetInnerHTML={{ __html: description }}
+                        onInput={(e) => setDescription(e.currentTarget.innerHTML)}
                         className="min-h-[150px] p-3 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                     />
                     <div className="flex items-center gap-2 p-2">
