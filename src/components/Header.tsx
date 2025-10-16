@@ -71,7 +71,7 @@ export function Header() {
                     <LayoutGrid className="mr-2 h-4 w-4" />
                     <span>Boards</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem disabled>
+                  <DropdownMenuItem onClick={() => (window.location.href = "/profile")}>
                     <UserIcon className="mr-2 h-4 w-4" />
                     <span>Profile</span>
                   </DropdownMenuItem>
