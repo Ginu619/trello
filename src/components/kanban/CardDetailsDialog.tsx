@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Card } from "@/lib/types";
@@ -5,6 +6,7 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
+  DialogTitle,
 } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
@@ -91,6 +93,7 @@ export function CardDetailsDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0">
         <DialogHeader className="p-4 border-b">
+          <DialogTitle className="sr-only">Card Details</DialogTitle>
           <div className="flex items-start gap-3">
             <CheckSquare className="h-6 w-6 mt-1 text-muted-foreground" />
             <div className="w-full">
@@ -98,6 +101,7 @@ export function CardDetailsDialog({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="text-xl font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto"
+                aria-label="Card title"
               />
               <p className="text-sm text-muted-foreground">
                 in list <span className="underline">{listTitle}</span>
