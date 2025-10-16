@@ -153,7 +153,10 @@ export function CardDetailsDialog({
         createdAt: new Date().toISOString()
     };
     const newComments = [...(card.comments || []), newCommentObject];
-    await handleUpdateCard({ comments: newComments });
+    const updatedCard = await handleUpdateCard({ comments: newComments });
+    if(updatedCard) {
+      setCard(updatedCard);
+    }
     setNewComment("");
     setIsSavingComment(false);
   }
