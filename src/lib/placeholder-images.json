@@ -1,3 +1,28 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-image",
+      "description": "A stylized Kanban board interface.",
+      "imageUrl": "https://picsum.photos/seed/kanban-hero/1200/800",
+      "imageHint": "project management"
+    },
+    {
+      "id": "board-thumb-1",
+      "description": "Thumbnail for a project board.",
+      "imageUrl": "https://picsum.photos/seed/board1/400/200",
+      "imageHint": "abstract pattern"
+    },
+    {
+      "id": "board-thumb-2",
+      "description": "Thumbnail for another project board.",
+      "imageUrl": "https://picsum.photos/seed/board2/400/200",
+      "imageHint": "cityscape night"
+    },
+    {
+      "id": "board-thumb-3",
+      "description": "Thumbnail for a personal board.",
+      "imageUrl": "https://picsum.photos/seed/board3/400/200",
+      "imageHint": "nature forest"
+    }
+  ]
 }
