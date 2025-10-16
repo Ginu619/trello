@@ -83,25 +83,23 @@ export function KanbanCard({
             {card.labels && card.labels.length > 0 && (
                 <div className="flex flex-wrap gap-1">
                     {card.labels.map(label => (
-                        <span key={label.id} className={cn("px-2 py-0.5 text-xs font-semibold text-white", label.color)}>
-                            {label.text}
-                        </span>
+                        <div key={label.id} className={cn("h-2 w-10 rounded-full", label.color)} />
                     ))}
                 </div>
             )}
           <p className="text-sm">{card.title}</p>
           <div className="flex justify-between items-center text-muted-foreground">
-             <div className="flex items-center gap-2">
-                {card.dueDate && (
-                    <Badge variant="outline" className="flex items-center gap-1 text-xs">
-                        <Clock className="h-3 w-3" />
-                        {format(new Date(card.dueDate), "MMM d")}
-                    </Badge>
-                )}
+             <div className="flex items-center gap-2 flex-wrap">
                 {totalChecklistItems > 0 && (
                      <Badge variant="outline" className={cn("flex items-center gap-1 text-xs", completedChecklistItems === totalChecklistItems && "bg-green-500/20 text-green-300 border-green-500/30")}>
                         <CheckSquare className="h-3 w-3" />
                         {completedChecklistItems}/{totalChecklistItems}
+                    </Badge>
+                )}
+                {card.dueDate && (
+                    <Badge variant="outline" className="flex items-center gap-1 text-xs">
+                        <Clock className="h-3 w-3" />
+                        {format(new Date(card.dueDate), "MMM d")}
                     </Badge>
                 )}
              </div>

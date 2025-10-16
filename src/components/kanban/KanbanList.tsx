@@ -2,7 +2,7 @@
 
 import type { Card, List } from "@/lib/types";
 import { KanbanCard } from "./KanbanCard";
-import { PlusCircle, GripVertical } from "lucide-react";
+import { PlusCircle, MoreHorizontal } from "lucide-react";
 import { Button } from "../ui/button";
 import { useState } from "react";
 import { Textarea } from "../ui/textarea";
@@ -57,8 +57,8 @@ export function KanbanList({
     >
       <div className="flex items-center justify-between p-3 border-b">
         <h2 className="font-semibold">{list.title}</h2>
-        <Button variant="ghost" size="icon" className="h-8 w-8 cursor-grab">
-          <GripVertical className="h-4 w-4" />
+        <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer">
+          <MoreHorizontal className="h-4 w-4" />
         </Button>
       </div>
       <div className="flex-grow p-2 overflow-y-auto space-y-2">
