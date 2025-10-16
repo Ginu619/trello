@@ -49,7 +49,7 @@ export function KanbanList({
 
   return (
     <div
-      className="w-72 flex-shrink-0 h-full flex flex-col bg-card rounded-lg shadow-sm"
+      className="w-72 flex-shrink-0 h-full flex flex-col bg-card/60 backdrop-blur-sm rounded-lg shadow-sm"
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
