@@ -11,7 +11,7 @@ import {
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { updateCard } from "@/lib/data";
 import {
@@ -36,6 +36,7 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Textarea } from "../ui/textarea";
+import { cn } from "@/lib/utils";
 
 interface CardDetailsDialogProps {
   card: Card;
@@ -56,29 +57,32 @@ export function CardDetailsDialog({
   const [description, setDescription] = useState(card.description || "");
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
+  const descriptionEditorRef = useRef<HTMLDivElement>(null);
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setTitle(card.title);
       setDescription(card.description || "");
+      setIsEditingDescription(false);
     }
   }, [isOpen, card]);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleDescriptionSave = async () => {
     setIsSaving(true);
     try {
+      const newDescription = descriptionEditorRef.current?.innerHTML || '';
       const updatedCard = await updateCard("board-1", card.id, {
-        title,
-        description,
+        description: newDescription,
       });
       onCardUpdate(updatedCard);
-      toast({ title: "Card updated successfully!" });
-      onOpenChange(false);
+      setDescription(newDescription);
+      toast({ title: "Description updated successfully!" });
+      setIsEditingDescription(false);
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to update card.",
+        description: "Failed to update description.",
         variant: "destructive",
       });
     } finally {
@@ -86,23 +90,43 @@ export function CardDetailsDialog({
     }
   };
 
-  const hasChanges =
-    title !== card.title || description !== (card.description || "");
+  const handleTitleBlur = async () => {
+    if (title === card.title) return;
+    try {
+      const updatedCard = await updateCard("board-1", card.id, { title });
+      onCardUpdate(updatedCard);
+      toast({ title: "Card title updated." });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update card title.",
+        variant: "destructive",
+      });
+      setTitle(card.title); // Revert on error
+    }
+  };
+
+  const handleFormat = (command: string, value?: string) => {
+    document.execCommand(command, false, value);
+    descriptionEditorRef.current?.focus();
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0">
         <DialogHeader className="p-4 border-b">
-          <DialogTitle className="sr-only">Card Details</DialogTitle>
           <div className="flex items-start gap-3">
             <CheckSquare className="h-6 w-6 mt-1 text-muted-foreground" />
             <div className="w-full">
-              <Input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="text-xl font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto"
-                aria-label="Card title"
-              />
+              <DialogTitle>
+                <Input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  onBlur={handleTitleBlur}
+                  className="text-xl font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto"
+                  aria-label="Card title"
+                />
+              </DialogTitle>
               <p className="text-sm text-muted-foreground">
                 in list <span className="underline">{listTitle}</span>
               </p>
@@ -144,36 +168,42 @@ export function CardDetailsDialog({
                     <h3 className="text-lg font-semibold">Description</h3>
                 </div>
               <div className="pl-9">
-                <div className="bg-input/50 rounded-md">
-                   <div className="flex items-center gap-1 p-2 border-b border-border">
-                        <Button variant="ghost" size="icon" className="h-8 w-8"><Type className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8"><Bold className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8"><Italic className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8"><List className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8"><ListOrdered className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8"><Link2 className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8"><Code className="h-4 w-4" /></Button>
+                {isEditingDescription ? (
+                  <div className="bg-input/50 rounded-md">
+                    <div className="flex items-center gap-1 p-2 border-b border-border">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleFormat('formatBlock', 'p')}><Type className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleFormat('bold')}><Bold className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleFormat('italic')}><Italic className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleFormat('insertUnorderedList')}><List className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleFormat('insertOrderedList')}><ListOrdered className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleFormat('createLink', window.prompt("Enter URL:") || undefined)}><Link2 className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleFormat('formatBlock', 'pre')}><Code className="h-4 w-4" /></Button>
                    </div>
-                  <Textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Add a more detailed description..."
-                    className="min-h-[150px] bg-transparent border-0 focus-visible:ring-0 shadow-none"
-                  />
-                </div>
-                {hasChanges && (
-                    <div className="flex items-center gap-2 mt-2">
-                        <Button onClick={handleSubmit} disabled={isSaving} size="sm">
+                    <div
+                        ref={descriptionEditorRef}
+                        contentEditable
+                        dangerouslySetInnerHTML={{ __html: description }}
+                        className="min-h-[150px] p-3 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                    />
+                    <div className="flex items-center gap-2 p-2">
+                        <Button onClick={handleDescriptionSave} disabled={isSaving} size="sm">
                             {isSaving && <Loader2 className="mr-2 animate-spin" />}
                             Save
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => {
-                            setTitle(card.title);
-                            setDescription(card.description || '');
-                        }}>
+                        <Button variant="ghost" size="sm" onClick={() => setIsEditingDescription(false)}>
                             Cancel
                         </Button>
                     </div>
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => setIsEditingDescription(true)}
+                    className={cn(
+                      "min-h-[100px] w-full rounded-md bg-input/40 p-3 text-sm hover:bg-input/60 cursor-pointer",
+                      !description && "text-muted-foreground"
+                    )}
+                    dangerouslySetInnerHTML={{ __html: description || "Add a more detailed description..."}}
+                   />
                 )}
               </div>
             </div>
