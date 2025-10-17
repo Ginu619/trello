@@ -157,7 +157,8 @@ export function CardDetailsDialog({
     if(updatedCard) {
       setCard(prevCard => ({
         ...prevCard,
-        comments: updatedCard.comments
+        comments: updatedCard.comments,
+        activities: updatedCard.activities
       }));
     }
     setNewComment("");
@@ -205,12 +206,21 @@ export function CardDetailsDialog({
         <div className="flex-grow grid grid-cols-1 md:grid-cols-3 gap-8 p-4 overflow-y-auto">
           {/* Main content */}
           <div className="md:col-span-2 space-y-6">
-            <div className="flex items-center gap-6">
+            <div className="flex items-start gap-6 flex-wrap">
               {card.members && card.members.length > 0 && (
                 <div>
                   <h3 className="text-xs font-semibold text-muted-foreground mb-2">Members</h3>
                   <div className="flex -space-x-2">
-                    
+                    {card.members.map(memberId => {
+                        const member = team.find(m => m.id === memberId);
+                        if (!member) return null;
+                        return (
+                            <Avatar key={member.id} className="h-8 w-8 border-2 border-background">
+                                <AvatarImage src={member.avatarUrl} />
+                                <AvatarFallback>{getInitials(member.name)}</AvatarFallback>
+                            </Avatar>
+                        )
+                    })}
                   </div>
                 </div>
               )}
@@ -218,7 +228,11 @@ export function CardDetailsDialog({
                 <div>
                   <h3 className="text-xs font-semibold text-muted-foreground mb-2">Labels</h3>
                   <div className="flex flex-wrap gap-1">
-                    
+                    {card.labels.map(label => (
+                        <div key={label.id} className="px-3 py-1 text-sm font-semibold rounded-md" style={{backgroundColor: `${label.color}33`, color: label.color}}>
+                            {label.text}
+                        </div>
+                    ))}
                 </div>
                 </div>
               )}
