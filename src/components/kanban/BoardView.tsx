@@ -1,11 +1,11 @@
 
 "use client";
 
-import { addList, updateBoard, addCard } from "@/lib/data";
+import { addList, updateBoard, addCard, updateList, deleteList as deleteListFromDB } from "@/lib/data";
 import type { Board, Card, List } from "@/lib/types";
 import { useCallback, useEffect, useState } from "react";
 import { KanbanList } from "./KanbanList";
-import { PlusCircle, Loader2 } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 
@@ -168,6 +168,37 @@ export function BoardView({ initialBoard }: { initialBoard: Board }) {
     });
   }
 
+  const handleListUpdate = async (listId: string, updates: Partial<List>) => {
+    const originalLists = board.lists;
+    setBoard(b => ({
+      ...b,
+      lists: b.lists.map(l => l.id === listId ? {...l, ...updates} : l)
+    }));
+
+    try {
+      await updateList(board.id, listId, updates);
+    } catch (error) {
+      console.error("Failed to update list", error);
+      setBoard(b => ({ ...b, lists: originalLists }));
+    }
+  };
+
+  const handleListDelete = async (listId: string) => {
+    const originalLists = board.lists;
+    setBoard(b => ({
+      ...b,
+      lists: b.lists.filter(l => l.id !== listId)
+    }));
+
+    try {
+      await deleteListFromDB(board.id, listId);
+    } catch (error) {
+      console.error("Failed to delete list", error);
+      setBoard(b => ({ ...b, lists: originalLists }));
+    }
+  };
+
+
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem)]">
         <div className="p-4 bg-background/80 backdrop-blur-sm border-b">
@@ -185,6 +216,8 @@ export function BoardView({ initialBoard }: { initialBoard: Board }) {
               onDragEnter={handleDragEnter}
               onAddNewCard={handleAddNewCard}
               onCardUpdate={handleCardUpdate}
+              onListUpdate={handleListUpdate}
+              onListDelete={handleListDelete}
               draggedCardId={dragState?.cardId}
             />
           ))}

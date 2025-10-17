@@ -134,6 +134,24 @@ export async function addList(boardId: string, title: string): Promise<List> {
     return newList;
 }
 
+export async function updateList(boardId: string, listId: string, updates: Partial<List>): Promise<List> {
+    await delay(50);
+    const board = boards.find(b => b.id === boardId);
+    if (!board) throw new Error("Board not found");
+    const list = board.lists.find(l => l.id === listId);
+    if (!list) throw new Error("List not found");
+    
+    Object.assign(list, updates);
+    return JSON.parse(JSON.stringify(list));
+}
+
+export async function deleteList(boardId: string, listId: string): Promise<void> {
+    await delay(50);
+    const board = boards.find(b => b.id === boardId);
+    if (!board) throw new Error("Board not found");
+    board.lists = board.lists.filter(l => l.id !== listId);
+}
+
 export async function addCard(boardId: string, listId: string, title: string): Promise<Card> {
     await delay(50);
     const board = boards.find(b => b.id === boardId);
