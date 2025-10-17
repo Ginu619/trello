@@ -9,14 +9,15 @@ import { PlusCircle } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 
-type DragState = {
+type CardDragState = {
   cardId: string;
   sourceListId: string;
 } | null;
 
 export function BoardView({ initialBoard }: { initialBoard: Board }) {
   const [board, setBoard] = useState<Board>(initialBoard);
-  const [dragState, setDragState] = useState<DragState>(null);
+  const [cardDragState, setCardDragState] = useState<CardDragState>(null);
+  const [draggedListId, setDraggedListId] = useState<string | null>(null);
   const [isAddingList, setIsAddingList] = useState(false);
   const [newListTitle, setNewListTitle] = useState("");
 
@@ -24,30 +25,36 @@ export function BoardView({ initialBoard }: { initialBoard: Board }) {
     setBoard(initialBoard);
   }, [initialBoard]);
 
-  const handleDragStart = (cardId: string, sourceListId: string) => {
-    setDragState({ cardId, sourceListId });
+  const handleCardDragStart = (cardId: string, sourceListId: string) => {
+    setCardDragState({ cardId, sourceListId });
+  };
+  
+  const handleListDragStart = (listId: string) => {
+    setDraggedListId(listId);
   };
 
-  const handleDragEnd = useCallback(async () => {
-    if (!dragState) return;
-
-    // Persist changes
+  const persistBoardUpdate = useCallback(async () => {
     try {
-      await updateBoard(board.id, { lists: board.lists });
+        await updateBoard(board.id, { lists: board.lists });
     } catch (error) {
-      console.error("Failed to update board", error);
-      // Optionally, revert to `initialBoard` state on error
+        console.error("Failed to update board", error);
+        // Optionally, revert to `initialBoard` state on error
+        setBoard(initialBoard);
     }
+  }, [board.id, board.lists, initialBoard]);
 
-    setDragState(null);
-  }, [dragState, board]);
+  const handleDragEnd = useCallback(() => {
+    if (cardDragState || draggedListId) {
+        persistBoardUpdate();
+    }
+    setCardDragState(null);
+    setDraggedListId(null);
+  }, [cardDragState, draggedListId, persistBoardUpdate]);
 
-  const handleDragEnter = (targetListId: string, targetCardId: string | null) => {
-    if (!dragState) return;
+  const handleCardDragEnter = (targetListId: string, targetCardId: string | null) => {
+    if (!cardDragState) return;
 
-    const { cardId, sourceListId } = dragState;
-
-    // Avoid unnecessary state updates
+    const { cardId, sourceListId } = cardDragState;
     if (targetListId === sourceListId && targetCardId === cardId) return;
 
     setBoard((prevBoard) => {
@@ -70,7 +77,6 @@ export function BoardView({ initialBoard }: { initialBoard: Board }) {
         targetList.cards.push(card);
       }
       
-      // Update order property (optional but good practice)
       targetList.cards.forEach((c: Card, i: number) => c.order = i);
       if (sourceListId !== targetListId) {
         sourceList.cards.forEach((c: Card, i: number) => c.order = i);
@@ -79,8 +85,24 @@ export function BoardView({ initialBoard }: { initialBoard: Board }) {
       return newBoard;
     });
 
-    // Update dragState to reflect the card's new list
-    setDragState({ cardId, sourceListId: targetListId });
+    setCardDragState({ cardId, sourceListId: targetListId });
+  };
+  
+  const handleListDragEnter = (targetListId: string) => {
+    if (!draggedListId || draggedListId === targetListId) return;
+
+    setBoard(prevBoard => {
+        const newBoard = JSON.parse(JSON.stringify(prevBoard));
+        const draggedListIndex = newBoard.lists.findIndex((l: List) => l.id === draggedListId);
+        const targetListIndex = newBoard.lists.findIndex((l: List) => l.id === targetListId);
+
+        if (draggedListIndex === -1 || targetListIndex === -1) return prevBoard;
+        
+        const [draggedList] = newBoard.lists.splice(draggedListIndex, 1);
+        newBoard.lists.splice(targetListIndex, 0, draggedList);
+        
+        return newBoard;
+    });
   };
   
   const handleAddNewList = async (e: React.FormEvent) => {
@@ -200,7 +222,7 @@ export function BoardView({ initialBoard }: { initialBoard: Board }) {
 
 
   return (
-    <div className="flex flex-col h-[calc(100vh-3.5rem)]">
+    <div className="flex flex-col h-[calc(100vh-3.5rem)]" onDragEnd={handleDragEnd}>
         <div className="p-4 bg-background/80 backdrop-blur-sm border-b">
             <h1 className="text-2xl font-bold">{board.title}</h1>
         </div>
@@ -211,14 +233,17 @@ export function BoardView({ initialBoard }: { initialBoard: Board }) {
               key={list.id}
               list={list}
               boardId={board.id}
-              onDragStart={handleDragStart}
+              onCardDragStart={handleCardDragStart}
+              onCardDragEnter={handleCardDragEnter}
+              onListDragStart={handleListDragStart}
+              onListDragEnter={handleListDragEnter}
               onDragEnd={handleDragEnd}
-              onDragEnter={handleDragEnter}
               onAddNewCard={handleAddNewCard}
               onCardUpdate={handleCardUpdate}
               onListUpdate={handleListUpdate}
               onListDelete={handleListDelete}
-              draggedCardId={dragState?.cardId}
+              draggedCardId={cardDragState?.cardId}
+              isListDragged={draggedListId === list.id}
             />
           ))}
           <div className="w-72 flex-shrink-0">

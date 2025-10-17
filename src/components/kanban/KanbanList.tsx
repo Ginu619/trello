@@ -24,31 +24,38 @@ import {
   AlertDialogTitle,
 } from "../ui/alert-dialog";
 import { Input } from "../ui/input";
+import { cn } from "@/lib/utils";
 
 interface KanbanListProps {
   list: List;
   boardId: string;
-  onDragStart: (cardId: string, listId: string) => void;
+  onCardDragStart: (cardId: string, listId: string) => void;
   onDragEnd: () => void;
-  onDragEnter: (listId: string, cardId: string | null) => void;
+  onCardDragEnter: (listId: string, cardId: string | null) => void;
+  onListDragStart: (listId: string) => void;
+  onListDragEnter: (listId: string) => void;
   onAddNewCard: (listId: string, title: string) => Promise<void>;
   onCardUpdate: (updatedCard: Card) => void;
   onListUpdate: (listId: string, updates: Partial<List>) => void;
   onListDelete: (listId: string) => void;
   draggedCardId?: string | null;
+  isListDragged: boolean;
 }
 
 export function KanbanList({
   list,
   boardId,
-  onDragStart,
+  onCardDragStart,
+  onCardDragEnter,
+  onListDragStart,
+  onListDragEnter,
   onDragEnd,
-  onDragEnter,
   onAddNewCard,
   onCardUpdate,
   onListUpdate,
   onListDelete,
   draggedCardId,
+  isListDragged,
 }: KanbanListProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [newCardTitle, setNewCardTitle] = useState("");
@@ -67,11 +74,22 @@ export function KanbanList({
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
   };
+  
+  const handleListDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    onListDragStart(list.id);
+  }
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleListDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onListDragEnter(list.id);
+  }
+
+  const handleCardDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     if (list.cards.length === 0) {
-      onDragEnter(list.id, null);
+      onCardDragEnter(list.id, null);
     }
   };
 
@@ -103,11 +121,17 @@ export function KanbanList({
   return (
     <>
       <div
-        className="w-72 flex-shrink-0 h-full flex flex-col bg-card/80 rounded-xl shadow-sm"
+        draggable
+        onDragStart={handleListDragStart}
+        onDragEnter={handleListDragEnter}
         onDragOver={handleDragOver}
-        onDrop={handleDrop}
+        onDrop={handleCardDrop}
+        className={cn(
+          "w-72 flex-shrink-0 h-full flex flex-col bg-card/80 rounded-xl shadow-sm transition-opacity",
+          isListDragged && "opacity-50"
+        )}
       >
-        <div className="flex items-center justify-between p-3 border-b border-border">
+        <div className="flex items-center justify-between p-3 border-b border-border cursor-grab active:cursor-grabbing">
             {isEditingTitle ? (
                  <Input
                     ref={titleInputRef}
@@ -118,14 +142,11 @@ export function KanbanList({
                     className="h-8 text-base font-semibold"
                 />
             ) : (
-                <h2 className="font-semibold text-foreground cursor-pointer" onClick={() => setIsEditingTitle(true)}>
+                <h2 className="font-semibold text-foreground" onClick={() => setIsEditingTitle(true)}>
                     {list.title}
                 </h2>
             )}
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer">
-              <ArrowRightLeft className="h-4 w-4" />
-            </Button>
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer">
@@ -155,9 +176,9 @@ export function KanbanList({
                 listId={list.id}
                 listTitle={list.title}
                 isDragged={card.id === draggedCardId}
-                onDragStart={onDragStart}
+                onDragStart={onCardDragStart}
                 onDragEnd={onDragEnd}
-                onDragEnter={onDragEnter}
+                onDragEnter={onCardDragEnter}
                 onCardUpdate={onCardUpdate}
               />
             ))}
