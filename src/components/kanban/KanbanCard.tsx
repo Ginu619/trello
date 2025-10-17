@@ -102,19 +102,6 @@ export function KanbanCard({
                   </Badge>
               )}
             </div>
-            
-            {card.members && card.members.length > 0 && (
-              <div className="flex justify-end pt-1">
-                <div className="flex -space-x-2">
-                    {card.members.map(memberId => (
-                        <Avatar key={memberId} className="h-6 w-6 border-2 border-background">
-                           <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${memberId.replace('user-','')}`} />
-                           <AvatarFallback>{memberId.charAt(0).toUpperCase()}</AvatarFallback>
-                        </Avatar>
-                    ))}
-                </div>
-              </div>
-            )}
           </CardContent>
         </UICard>
         <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover/card:opacity-100 transition-opacity">
