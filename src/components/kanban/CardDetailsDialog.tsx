@@ -54,7 +54,8 @@ export function CardDetailsDialog({
   const [newChecklistItem, setNewChecklistItem] = useState("");
   const [newComment, setNewComment] = useState("");
   const [isSavingComment, setIsSavingComment] = useState(false);
-  
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+
   const { toast } = useToast();
   const descriptionEditorRef = useRef<HTMLDivElement>(null);
   const [isEditingDescription, setIsEditingDescription] = useState(false);
@@ -320,13 +321,15 @@ export function CardDetailsDialog({
                 <div className="pl-9 grid grid-cols-2 sm:grid-cols-3 gap-4">
                   {card.attachments.map(att => (
                     <div key={att.id} className="group">
-                      <a href={att.url} target="_blank" rel="noopener noreferrer" className="block w-full aspect-video bg-muted rounded-md flex items-center justify-center overflow-hidden">
                         {att.type === 'image' ? (
-                          <img src={att.url} alt={att.name} className="w-full h-full object-cover" />
+                          <button onClick={() => setImagePreviewUrl(att.url)} className="block w-full aspect-video bg-muted rounded-md flex items-center justify-center overflow-hidden cursor-pointer">
+                            <img src={att.url} alt={att.name} className="w-full h-full object-cover" />
+                          </button>
                         ) : (
-                          <File className="h-10 w-10 text-muted-foreground" />
+                          <a href={att.url} target="_blank" rel="noopener noreferrer" className="block w-full aspect-video bg-muted rounded-md flex items-center justify-center overflow-hidden">
+                            <File className="h-10 w-10 text-muted-foreground" />
+                          </a>
                         )}
-                      </a>
                       <p className="text-xs mt-1 truncate group-hover:underline">{att.name}</p>
                       <p className="text-xs text-muted-foreground">
                         Added {formatDistanceToNow(parseISO(att.createdAt), { addSuffix: true })}
@@ -513,6 +516,15 @@ export function CardDetailsDialog({
           </div>
         </div>
       </DialogContent>
+      {imagePreviewUrl && (
+        <Dialog open={!!imagePreviewUrl} onOpenChange={() => setImagePreviewUrl(null)}>
+            <DialogContent className="max-w-3xl p-2">
+                <img src={imagePreviewUrl} alt="Image preview" className="w-full h-auto max-h-[80vh] object-contain"/>
+            </DialogContent>
+        </Dialog>
+      )}
     </Dialog>
   );
 }
+
+    
