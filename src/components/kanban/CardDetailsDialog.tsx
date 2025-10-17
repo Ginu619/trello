@@ -7,6 +7,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
@@ -158,11 +159,7 @@ export function CardDetailsDialog({
     const newComments = [...(card.comments || []), newCommentObject];
     const updatedCard = await handleUpdateCard({ comments: newComments });
     if(updatedCard) {
-      setCard(prevCard => ({
-        ...prevCard,
-        comments: updatedCard.comments,
-        activities: updatedCard.activities
-      }));
+      setCard(updatedCard);
     }
     setNewComment("");
     setIsSavingComment(false);
@@ -330,7 +327,13 @@ export function CardDetailsDialog({
                             <File className="h-10 w-10 text-muted-foreground" />
                           </a>
                         )}
-                      <p className="text-xs mt-1 truncate group-hover:underline">{att.name}</p>
+                      <div className="text-xs mt-1 truncate group-hover:underline">
+                        {att.type !== 'image' ? (
+                           <a href={att.url} target="_blank" rel="noopener noreferrer">{att.name}</a>
+                        ) : (
+                          <span>{att.name}</span>
+                        )}
+                      </div>
                       <p className="text-xs text-muted-foreground">
                         Added {formatDistanceToNow(parseISO(att.createdAt), { addSuffix: true })}
                         <a href={att.url} download={att.name} onClick={(e) => e.stopPropagation()} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -519,6 +522,10 @@ export function CardDetailsDialog({
       {imagePreviewUrl && (
         <Dialog open={!!imagePreviewUrl} onOpenChange={() => setImagePreviewUrl(null)}>
             <DialogContent className="max-w-3xl p-2">
+                <DialogHeader>
+                  <DialogTitle className="sr-only">Image Preview</DialogTitle>
+                  <DialogDescription className="sr-only">A larger view of the attached image.</DialogDescription>
+                </DialogHeader>
                 <img src={imagePreviewUrl} alt="Image preview" className="w-full h-auto max-h-[80vh] object-contain"/>
             </DialogContent>
         </Dialog>
