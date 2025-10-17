@@ -327,16 +327,18 @@ export function CardDetailsDialog({
                 </div>
                 <div className="pl-9 grid grid-cols-2 sm:grid-cols-3 gap-4">
                   {card.attachments.map(att => (
-                    <div key={att.id} className="group">
-                      {att.type === 'image' ? (
-                         <button onClick={() => setImagePreviewUrl(att.url)} className="w-full aspect-video bg-muted rounded-md flex items-center justify-center overflow-hidden">
-                           <img src={att.url} alt={att.name} className="w-full h-full object-cover" />
-                         </button>
-                      ) : (
-                        <a href={att.url} target="_blank" rel="noopener noreferrer" className="block w-full aspect-video bg-muted rounded-md flex items-center justify-center overflow-hidden">
-                          <File className="h-10 w-10 text-muted-foreground" />
-                        </a>
-                      )}
+                    <div key={att.id}>
+                      <div className="group relative">
+                        {att.type === 'image' ? (
+                          <button onClick={() => setImagePreviewUrl(att.url)} className="w-full aspect-video bg-muted rounded-md flex items-center justify-center overflow-hidden">
+                            <img src={att.url} alt={att.name} className="w-full h-full object-cover" />
+                          </button>
+                        ) : (
+                          <a href={att.url} target="_blank" rel="noopener noreferrer" className="block w-full aspect-video bg-muted rounded-md flex items-center justify-center overflow-hidden">
+                            <File className="h-10 w-10 text-muted-foreground" />
+                          </a>
+                        )}
+                      </div>
                       <div className="text-xs mt-1 truncate">
                         {att.type === 'image' ? (
                           <span className="cursor-pointer hover:underline" onClick={() => setImagePreviewUrl(att.url)}>{att.name}</span>
@@ -570,7 +572,7 @@ function CoverPopover({ card, onUpdate }: { card: Card; onUpdate: (updates: Part
             <PopoverTrigger asChild>
                 <Button variant="secondary" size="sm" className="justify-start"><CreditCard className="mr-2" /> Cover</Button>
             </PopoverTrigger>
-            <PopoverContent className="w-80">
+            <PopoverContent className="w-full max-w-xs sm:w-80">
                 <div className="space-y-4">
                     <div>
                         <h4 className="font-medium text-sm mb-2">Size</h4>
@@ -624,3 +626,5 @@ function CoverPopover({ card, onUpdate }: { card: Card; onUpdate: (updates: Part
         </Popover>
     )
 }
+
+    
