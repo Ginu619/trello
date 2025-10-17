@@ -7,11 +7,11 @@ const users: User[] = [
 ];
 
 const labels: Label[] = [
-    { id: 'label-1', text: 'Feature', color: 'bg-green-500' },
-    { id: 'label-2', text: 'Bug', color: 'bg-red-500' },
-    { id: 'label-3', text: 'Design', color: 'bg-blue-500' },
-    { id: 'label-4', text: 'Docs', color: 'bg-yellow-500' },
-    { id: 'label-5', text: 'Urgent', color: 'bg-purple-500' },
+    { id: 'label-1', text: 'Feature', color: '#10B981' }, // green-500
+    { id: 'label-2', text: 'Bug', color: '#EF4444' }, // red-500
+    { id: 'label-3', text: 'Design', color: '#3B82F6' }, // blue-500
+    { id: 'label-4', text: 'Docs', color: '#F59E0B' }, // yellow-500
+    { id: 'label-5', text: 'Urgent', color: '#8B5CF6' }, // purple-500
 ];
 
 

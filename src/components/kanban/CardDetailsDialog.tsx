@@ -224,7 +224,7 @@ export function CardDetailsDialog({
                   <h3 className="text-xs font-semibold text-muted-foreground mb-2">Labels</h3>
                   <div className="flex flex-wrap gap-1">
                     {card.labels.map(label => (
-                        <div key={label.id} className={cn("px-2 py-1 text-xs font-semibold text-white", label.color)}>{label.text}</div>
+                        <div key={label.id} className="px-2 py-1 text-xs font-semibold text-white" style={{backgroundColor: label.color}}>{label.text}</div>
                     ))}
                 </div>
                 </div>
@@ -407,7 +407,7 @@ export function CardDetailsDialog({
                             {availableLabels.map(label => (
                                 <div key={label.id} className="flex items-center gap-2">
                                     <Checkbox id={`label-${label.id}`} checked={card.labels?.some(l => l.id === label.id)} onCheckedChange={() => handleLabelToggle(label.id)} />
-                                    <div className={cn("px-2 py-1 text-xs font-semibold text-white", label.color)}>{label.text}</div>
+                                    <div className="px-2 py-1 text-xs font-semibold text-white" style={{backgroundColor: label.color}}>{label.text}</div>
                                 </div>
                             ))}
                         </div>
