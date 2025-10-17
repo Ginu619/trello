@@ -7,7 +7,6 @@ import { Card as UICard, CardContent } from "../ui/card";
 import { CardDetailsDialog } from "./CardDetailsDialog";
 import { cn } from "@/lib/utils";
 import { Badge } from "../ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Clock, CheckSquare, Edit, Trash2 } from "lucide-react";
 import { format } from 'date-fns';
 import { Button } from "../ui/button";
@@ -83,6 +82,15 @@ export function KanbanCard({
           )}
         >
           <CardContent className="p-0 space-y-2">
+            {card.labels && card.labels.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {card.labels.map(label => (
+                  <div key={label.id} className={cn("px-2.5 py-0.5 text-xs font-semibold text-white rounded-full", label.color)}>
+                    {label.text}
+                  </div>
+                ))}
+              </div>
+            )}
             <p className="text-sm font-medium text-foreground">{card.title}</p>
             <div className="flex items-center gap-2 flex-wrap">
               {totalChecklistItems > 0 && (
