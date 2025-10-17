@@ -11,7 +11,7 @@ import {
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { useEffect, useState, type FormEvent, useRef, useCallback } from "react";
+import { useEffect, useState, type FormEvent, useRef, useCallback, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { updateCard, getTeamMembers, getAvailableLabels } from "@/lib/data";
 import {
@@ -171,10 +171,10 @@ export function CardDetailsDialog({
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   }
 
-  const allActivities = [
+  const allActivities = useMemo(() => [
     ...(card.comments?.map(c => ({...c, type: 'comment'} as const)) || []),
     ...(card.activities?.map(a => ({...a, type: 'activity'} as const)) || [])
-  ].sort((a, b) => parseISO(b.createdAt).getTime() - parseISO(a.createdAt).getTime());
+  ].sort((a, b) => parseISO(b.createdAt).getTime() - parseISO(a.createdAt).getTime()), [card.comments, card.activities]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -224,7 +224,7 @@ export function CardDetailsDialog({
                   <h3 className="text-xs font-semibold text-muted-foreground mb-2">Labels</h3>
                   <div className="flex flex-wrap gap-1">
                     {card.labels.map(label => (
-                        <div key={label.id} className="px-2 py-1 text-xs font-semibold text-white" style={{backgroundColor: label.color}}>{label.text}</div>
+                        <div key={label.id} className="px-2 py-1 text-xs font-semibold text-white rounded-full" style={{backgroundColor: label.color}}>{label.text}</div>
                     ))}
                 </div>
                 </div>
