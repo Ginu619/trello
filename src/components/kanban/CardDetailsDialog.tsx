@@ -319,14 +319,14 @@ export function CardDetailsDialog({
                 </div>
                 <div className="pl-9 grid grid-cols-2 sm:grid-cols-3 gap-4">
                   {card.attachments.map(att => (
-                    <a key={att.id} href={att.url} target="_blank" rel="noopener noreferrer" className="group">
-                      <div className="w-full aspect-video bg-muted rounded-md flex items-center justify-center overflow-hidden">
+                    <div key={att.id} className="group">
+                      <a href={att.url} target="_blank" rel="noopener noreferrer" className="block w-full aspect-video bg-muted rounded-md flex items-center justify-center overflow-hidden">
                         {att.type === 'image' ? (
                           <img src={att.url} alt={att.name} className="w-full h-full object-cover" />
                         ) : (
                           <File className="h-10 w-10 text-muted-foreground" />
                         )}
-                      </div>
+                      </a>
                       <p className="text-xs mt-1 truncate group-hover:underline">{att.name}</p>
                       <p className="text-xs text-muted-foreground">
                         Added {formatDistanceToNow(parseISO(att.createdAt), { addSuffix: true })}
@@ -334,7 +334,7 @@ export function CardDetailsDialog({
                             <Download className="h-3 w-3 inline-block" />
                         </a>
                       </p>
-                    </a>
+                    </div>
                   ))}
                 </div>
               </div>
