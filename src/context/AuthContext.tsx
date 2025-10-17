@@ -1,6 +1,8 @@
+
 "use client";
 
 import { useToast } from "@/hooks/use-toast";
+import type { User } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import {
   createContext,
@@ -9,13 +11,6 @@ import {
   ReactNode,
   useCallback,
 } from "react";
-
-// Mock User Type
-interface User {
-  id: string;
-  name: string;
-  email: string;
-}
 
 interface AuthContextType {
   user: User | null;
@@ -31,9 +26,10 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 
 // Mock user data
 const MOCK_USER: User = {
-  id: "1",
+  id: "user-1",
   name: "Demo User",
   email: "user@example.com",
+  avatarUrl: "https://api.dicebear.com/7.x/initials/svg?seed=Demo%20User"
 };
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -61,7 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     (email: string) => {
       setLoading(true);
       setTimeout(() => {
-        const loggedInUser = { ...MOCK_USER, email };
+        const loggedInUser = { ...MOCK_USER, email, avatarUrl: `https://api.dicebear.com/7.x/initials/svg?seed=${MOCK_USER.name}` };
         setUser(loggedInUser);
         localStorage.setItem("kanban-user", JSON.stringify(loggedInUser));
         toast({ title: "Login Successful", description: `Welcome back, ${loggedInUser.name}!` });
@@ -76,7 +72,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     (name: string, email: string) => {
       setLoading(true);
       setTimeout(() => {
-        const newUser = { ...MOCK_USER, name, email };
+        const newUser: User = { id: `user-${Date.now()}`, name, email, avatarUrl: `https://api.dicebear.com/7.x/initials/svg?seed=${name}` };
         setUser(newUser);
         localStorage.setItem("kanban-user", JSON.stringify(newUser));
         toast({ title: "Signup Successful", description: `Welcome to KanbanFlow, ${name}!` });

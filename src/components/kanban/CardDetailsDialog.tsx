@@ -177,7 +177,7 @@ export function CardDetailsDialog({
   const allActivities = useMemo(() => [
     ...(card.comments?.map(c => ({...c, type: 'comment'} as const)) || []),
     ...(card.activities?.map(a => ({...a, type: 'activity'} as const)) || [])
-  ].sort((a, b) => parseISO(b.createdAt).getTime() - parseISO(a.createdAt).getTime()), [card]);
+  ].sort((a, b) => parseISO(b.createdAt).getTime() - parseISO(a.createdAt).getTime()), [card.comments, card.activities]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -210,15 +210,7 @@ export function CardDetailsDialog({
                 <div>
                   <h3 className="text-xs font-semibold text-muted-foreground mb-2">Members</h3>
                   <div className="flex -space-x-2">
-                    {card.members.map(memberId => {
-                      const member = team.find(m => m.id === memberId);
-                      return member ? (
-                        <Avatar key={memberId} className="h-8 w-8 border-2 border-background">
-                           <AvatarImage src={member.avatarUrl} />
-                           <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                      ) : null;
-                    })}
+                    
                   </div>
                 </div>
               )}
@@ -226,9 +218,7 @@ export function CardDetailsDialog({
                 <div>
                   <h3 className="text-xs font-semibold text-muted-foreground mb-2">Labels</h3>
                   <div className="flex flex-wrap gap-1">
-                    {card.labels.map(label => (
-                        <div key={label.id} className="px-2 py-1 text-xs font-semibold text-white rounded-full" style={{backgroundColor: label.color}}>{label.text}</div>
-                    ))}
+                    
                 </div>
                 </div>
               )}

@@ -88,7 +88,7 @@ export function KanbanCard({
                    <div 
                      key={label.id} 
                      className="px-2 py-1 text-xs font-semibold text-white rounded-full"
-                     style={{ backgroundColor: label.color.startsWith('bg-') ? '' : label.color }}
+                     style={{ backgroundColor: label.color }}
                    >
                     {label.text}
                   </div>
