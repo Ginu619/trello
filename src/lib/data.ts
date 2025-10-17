@@ -1,4 +1,4 @@
-import type { Board, List, Card, User, Label, ChecklistItem, Comment, Activity } from './types';
+import type { Board, List, Card, User, Label, ChecklistItem, Comment, Activity, Attachment } from './types';
 
 const users: User[] = [
   { id: 'user-1', name: 'Alex', avatarUrl: 'https://api.dicebear.com/7.x/initials/svg?seed=Alex' },

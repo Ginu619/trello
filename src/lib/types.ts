@@ -1,3 +1,11 @@
+export type Attachment = {
+  id: string;
+  name: string;
+  url: string;
+  type: "image" | "file";
+  createdAt: string;
+};
+
 export type Card = {
   id: string;
   title: string;
@@ -7,6 +15,7 @@ export type Card = {
   labels?: Label[];
   checklist?: ChecklistItem[];
   dueDate?: string;
+  attachments?: Attachment[];
   comments?: Comment[];
   activities?: Activity[];
 };

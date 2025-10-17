@@ -1,7 +1,7 @@
 
 "use client";
 
-import type { Card, User, Label as LabelType, ChecklistItem, Comment, Activity as ActivityType } from "@/lib/types";
+import type { Card, User, Label as LabelType, ChecklistItem, Comment, Activity as ActivityType, Attachment } from "@/lib/types";
 import {
   Dialog,
   DialogContent,
@@ -16,7 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { updateCard, getTeamMembers, getAvailableLabels } from "@/lib/data";
 import {
   Activity, Bold, Check, CheckSquare, Clock, Code, Italic, Link2, List, ListOrdered, Loader2,
-  Paperclip, Plus, Tag, Type, UserPlus, Users, MessageSquare, X
+  Paperclip, Plus, Tag, Type, UserPlus, Users, MessageSquare, X, File, Image as ImageIcon, Download
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Textarea } from "../ui/textarea";
@@ -58,6 +58,7 @@ export function CardDetailsDialog({
   const { toast } = useToast();
   const descriptionEditorRef = useRef<HTMLDivElement>(null);
   const [isEditingDescription, setIsEditingDescription] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -72,7 +73,7 @@ export function CardDetailsDialog({
     }
   }, [isOpen, initialCard]);
   
-  const handleUpdateCard = async (updates: Partial<Card>) => {
+  const handleUpdateCard = useCallback(async (updates: Partial<Card>) => {
     try {
         const updatedCard = await updateCard("board-1", card.id, updates);
         setCard(updatedCard);
@@ -81,7 +82,8 @@ export function CardDetailsDialog({
     } catch (error) {
         toast({ title: "Error", description: "Failed to update card.", variant: "destructive" });
     }
-  }
+  }, [card.id, onCardUpdate, toast]);
+
 
   const handleDescriptionSave = async () => {
     setIsSaving(true);
@@ -164,6 +166,24 @@ export function CardDetailsDialog({
     setNewComment("");
     setIsSavingComment(false);
   }
+
+  const handleFileAttach = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !currentUser) return;
+
+    const newAttachment: Attachment = {
+      id: `attachment-${Date.now()}`,
+      name: file.name,
+      url: URL.createObjectURL(file), // In a real app, you'd upload this and get a URL
+      type: file.type.startsWith("image/") ? "image" : "file",
+      createdAt: new Date().toISOString(),
+    };
+
+    const newAttachments = [...(card.attachments || []), newAttachment];
+    handleUpdateCard({ attachments: newAttachments });
+
+    toast({ title: "File attached", description: `${file.name} has been attached.` });
+  };
 
   const applyFormat = (command: string) => {
     document.execCommand(command, false);
@@ -289,6 +309,37 @@ export function CardDetailsDialog({
                 )}
               </div>
             </div>
+            
+            {/* Attachments */}
+            {card.attachments && card.attachments.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <Paperclip className="h-6 w-6 text-muted-foreground" />
+                  <h3 className="text-lg font-semibold">Attachments</h3>
+                </div>
+                <div className="pl-9 grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  {card.attachments.map(att => (
+                    <a key={att.id} href={att.url} target="_blank" rel="noopener noreferrer" className="group">
+                      <div className="w-full aspect-video bg-muted rounded-md flex items-center justify-center overflow-hidden">
+                        {att.type === 'image' ? (
+                          <img src={att.url} alt={att.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <File className="h-10 w-10 text-muted-foreground" />
+                        )}
+                      </div>
+                      <p className="text-xs mt-1 truncate group-hover:underline">{att.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Added {formatDistanceToNow(parseISO(att.createdAt), { addSuffix: true })}
+                        <a href={att.url} download={att.name} onClick={(e) => e.stopPropagation()} className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Download className="h-3 w-3 inline-block" />
+                        </a>
+                      </p>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
 
             {/* Checklist */}
             {card.checklist && card.checklist.length > 0 && (
@@ -447,7 +498,15 @@ export function CardDetailsDialog({
                     </PopoverContent>
                 </Popover>
 
-                <Button variant="secondary" size="sm" className="justify-start"><Paperclip className="mr-2" /> Attachment</Button>
+                <Button variant="secondary" size="sm" className="justify-start" onClick={() => fileInputRef.current?.click()}>
+                  <Paperclip className="mr-2" /> Attachment
+                </Button>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileAttach}
+                  className="hidden"
+                />
               </div>
 
             <Separator />
