@@ -83,13 +83,6 @@ export function KanbanCard({
           )}
         >
           <CardContent className="p-0 space-y-2">
-              {card.labels && card.labels.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                      {card.labels.map(label => (
-                          <Badge key={label.id} className={cn("rounded-full px-2 py-0.5 text-xs font-semibold text-white", label.color)}>{label.text}</Badge>
-                      ))}
-                  </div>
-              )}
             <p className="text-sm font-medium text-foreground">{card.title}</p>
             <div className="flex items-center gap-2 flex-wrap">
               {totalChecklistItems > 0 && (
