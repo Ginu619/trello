@@ -29,6 +29,7 @@ import { Calendar } from "../ui/calendar";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { Progress } from "../ui/progress";
 import { useAuth } from "@/hooks/useAuth";
+import Image from "next/image";
 
 interface CardDetailsDialogProps {
   card: Card;
@@ -327,22 +328,20 @@ export function CardDetailsDialog({
                 <div className="pl-9 grid grid-cols-2 sm:grid-cols-3 gap-4">
                   {card.attachments.map(att => (
                     <div key={att.id} className="group">
-                        {att.type === 'image' ? (
-                           <div className="w-full aspect-video bg-muted rounded-md flex items-center justify-center overflow-hidden">
-                             <button onClick={() => setImagePreviewUrl(att.url)} className="w-full h-full">
-                               <img src={att.url} alt={att.name} className="w-full h-full object-cover" />
-                             </button>
-                           </div>
-                        ) : (
-                          <a href={att.url} target="_blank" rel="noopener noreferrer" className="block w-full aspect-video bg-muted rounded-md flex items-center justify-center overflow-hidden">
-                            <File className="h-10 w-10 text-muted-foreground" />
-                          </a>
-                        )}
+                      {att.type === 'image' ? (
+                         <button onClick={() => setImagePreviewUrl(att.url)} className="w-full aspect-video bg-muted rounded-md flex items-center justify-center overflow-hidden">
+                           <img src={att.url} alt={att.name} className="w-full h-full object-cover" />
+                         </button>
+                      ) : (
+                        <a href={att.url} target="_blank" rel="noopener noreferrer" className="block w-full aspect-video bg-muted rounded-md flex items-center justify-center overflow-hidden">
+                          <File className="h-10 w-10 text-muted-foreground" />
+                        </a>
+                      )}
                       <div className="text-xs mt-1 truncate">
-                        {att.type !== 'image' ? (
-                           <a href={att.url} target="_blank" rel="noopener noreferrer" className="group-hover:underline">{att.name}</a>
+                        {att.type === 'image' ? (
+                          <span className="cursor-pointer hover:underline" onClick={() => setImagePreviewUrl(att.url)}>{att.name}</span>
                         ) : (
-                          <span className="cursor-pointer" onClick={() => setImagePreviewUrl(att.url)}>{att.name}</span>
+                           <a href={att.url} target="_blank" rel="noopener noreferrer" className="hover:underline">{att.name}</a>
                         )}
                       </div>
                       <p className="text-xs text-muted-foreground">
@@ -535,7 +534,7 @@ export function CardDetailsDialog({
       {imagePreviewUrl && (
         <Dialog open={!!imagePreviewUrl} onOpenChange={() => setImagePreviewUrl(null)}>
             <DialogContent className="max-w-3xl p-2">
-                 <DialogHeader>
+                <DialogHeader>
                   <DialogTitle className="sr-only">Image Preview</DialogTitle>
                   <DialogDescription className="sr-only">A larger view of the attached image.</DialogDescription>
                 </DialogHeader>
