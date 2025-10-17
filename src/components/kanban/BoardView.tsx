@@ -14,8 +14,6 @@ type CardDragState = {
   sourceListId: string;
 } | null;
 
-let cardCounter = 0;
-
 export function BoardView({ initialBoard }: { initialBoard: Board }) {
   const [board, setBoard] = useState<Board>(initialBoard);
   const [cardDragState, setCardDragState] = useState<CardDragState>(null);
@@ -138,7 +136,7 @@ export function BoardView({ initialBoard }: { initialBoard: Board }) {
 
   const handleAddNewCard = async (listId: string, title: string) => {
     const optimisticCard: Card = {
-        id: `temp-card-${Date.now()}-${cardCounter++}`,
+        id: `temp-card-${Date.now()}-${Math.random()}`,
         title,
         order: board.lists.find(l => l.id === listId)?.cards.length || 0,
     };
