@@ -155,7 +155,10 @@ export function CardDetailsDialog({
     const newComments = [...(card.comments || []), newCommentObject];
     const updatedCard = await handleUpdateCard({ comments: newComments });
     if(updatedCard) {
-      setCard(updatedCard);
+      setCard(prevCard => ({
+        ...prevCard,
+        comments: updatedCard.comments
+      }));
     }
     setNewComment("");
     setIsSavingComment(false);
@@ -174,7 +177,7 @@ export function CardDetailsDialog({
   const allActivities = useMemo(() => [
     ...(card.comments?.map(c => ({...c, type: 'comment'} as const)) || []),
     ...(card.activities?.map(a => ({...a, type: 'activity'} as const)) || [])
-  ].sort((a, b) => parseISO(b.createdAt).getTime() - parseISO(a.createdAt).getTime()), [card.comments, card.activities]);
+  ].sort((a, b) => parseISO(b.createdAt).getTime() - parseISO(a.createdAt).getTime()), [card]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
