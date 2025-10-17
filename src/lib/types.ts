@@ -6,6 +6,12 @@ export type Attachment = {
   createdAt: string;
 };
 
+export type CardCover = {
+    type: 'color' | 'image';
+    value: string;
+    size: 'normal' | 'full';
+};
+
 export type Card = {
   id: string;
   title: string;
@@ -18,6 +24,7 @@ export type Card = {
   attachments?: Attachment[];
   comments?: Comment[];
   activities?: Activity[];
+  cover?: CardCover;
 };
 
 export type Label = {

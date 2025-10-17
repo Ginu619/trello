@@ -25,7 +25,7 @@ let boards: Board[] = [
         title: 'To Do',
         cards: [
           { id: 'card-1', title: 'Design the new login page', order: 0, members: ['user-1'], labels: [labels[2]], comments: [], activities: [{id: 'activity-1', userId: 'user-1', description: 'added this card to To Do', createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() }] },
-          { id: 'card-2', title: 'Develop API for user authentication', order: 1, members: ['user-2'], labels: [labels[0]], dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), comments: [], activities: [] },
+          { id: 'card-2', title: 'Develop API for user authentication', order: 1, members: ['user-2'], labels: [labels[0]], dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), comments: [], activities: [], cover: { type: 'image', value: 'https://picsum.photos/seed/auth/600/400', size: 'normal' } },
           { id: 'card-3', title: 'Fix bug in the reporting dashboard', order: 2, members: ['user-1', 'user-2'], labels: [labels[1], labels[4]], checklist: [{id: 'check-1', text: 'Identify bug', completed: true}, {id: 'check-2', text: 'Fix bug', completed: false}], comments: [], activities: []},
         ],
       },
@@ -33,7 +33,7 @@ let boards: Board[] = [
         id: 'list-2',
         title: 'In Progress',
         cards: [
-          { id: 'card-4', title: 'Implement new search functionality', order: 0, members: ['user-3'], comments: [], activities: [] },
+          { id: 'card-4', title: 'Implement new search functionality', order: 0, members: ['user-3'], comments: [], activities: [], cover: { type: 'color', value: '#3B82F6', size: 'full'} },
         ],
       },
       {
@@ -159,8 +159,13 @@ export async function updateCard(boardId: string, cardId: string, updates: Parti
     for (const list of board.lists) {
         const cardIndex = list.cards.findIndex(c => c.id === cardId);
         if (cardIndex !== -1) {
-            list.cards[cardIndex] = { ...list.cards[cardIndex], ...updates };
-            return list.cards[cardIndex];
+            // Handle cover property separately to allow removal
+            if ('cover' in updates && updates.cover === null) {
+                delete list.cards[cardIndex].cover;
+            } else {
+                list.cards[cardIndex] = { ...list.cards[cardIndex], ...updates };
+            }
+            return JSON.parse(JSON.stringify(list.cards[cardIndex]));
         }
     }
     throw new Error("Card not found");

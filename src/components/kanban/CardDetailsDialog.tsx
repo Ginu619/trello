@@ -1,7 +1,7 @@
 
 "use client";
 
-import type { Card, User, Label as LabelType, ChecklistItem, Comment, Activity as ActivityType, Attachment } from "@/lib/types";
+import type { Card, User, Label as LabelType, ChecklistItem, Comment, Activity as ActivityType, Attachment, CardCover } from "@/lib/types";
 import {
   Dialog,
   DialogContent,
@@ -17,7 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { updateCard, getTeamMembers, getAvailableLabels } from "@/lib/data";
 import {
   Activity, Bold, Check, CheckSquare, Clock, Code, Italic, Link2, List, ListOrdered, Loader2,
-  Paperclip, Plus, Tag, Type, UserPlus, Users, MessageSquare, X, File, Image as ImageIcon, Download
+  Paperclip, Plus, Tag, Type, UserPlus, Users, MessageSquare, X, File, Image as ImageIcon, Download, CreditCard, Minus, Search
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Textarea } from "../ui/textarea";
@@ -75,8 +75,9 @@ export function CardDetailsDialog({
     }
   }, [isOpen, initialCard]);
   
-  const handleUpdateCard = useCallback(async (updates: Partial<Card>) => {
+  const handleUpdateCard = useCallback(async (updates: Partial<Card> | { cover: null }) => {
     try {
+        // @ts-ignore
         const updatedCard = await updateCard("board-1", card.id, updates);
         setCard(updatedCard);
         onCardUpdate(updatedCard);
@@ -201,6 +202,14 @@ export function CardDetailsDialog({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0">
+        {card.cover && card.cover.type === 'image' && (
+             <div className="relative h-40 w-full flex-shrink-0">
+                <Image src={card.cover.value} alt={card.title} fill className="object-cover" />
+             </div>
+        )}
+        {card.cover && card.cover.type === 'color' && (
+             <div className="h-28 w-full flex-shrink-0" style={{backgroundColor: card.cover.value}} />
+        )}
         <DialogHeader className="p-4 border-b">
           <div className="flex items-start gap-3">
             <CheckSquare className="h-6 w-6 mt-1 text-muted-foreground" />
@@ -319,19 +328,21 @@ export function CardDetailsDialog({
                   {card.attachments.map(att => (
                     <div key={att.id} className="group">
                         {att.type === 'image' ? (
-                          <button onClick={() => setImagePreviewUrl(att.url)} className="block w-full aspect-video bg-muted rounded-md flex items-center justify-center overflow-hidden cursor-pointer">
-                            <img src={att.url} alt={att.name} className="w-full h-full object-cover" />
-                          </button>
+                           <div className="w-full aspect-video bg-muted rounded-md flex items-center justify-center overflow-hidden">
+                             <button onClick={() => setImagePreviewUrl(att.url)} className="w-full h-full">
+                               <img src={att.url} alt={att.name} className="w-full h-full object-cover" />
+                             </button>
+                           </div>
                         ) : (
                           <a href={att.url} target="_blank" rel="noopener noreferrer" className="block w-full aspect-video bg-muted rounded-md flex items-center justify-center overflow-hidden">
                             <File className="h-10 w-10 text-muted-foreground" />
                           </a>
                         )}
-                      <div className="text-xs mt-1 truncate group-hover:underline">
+                      <div className="text-xs mt-1 truncate">
                         {att.type !== 'image' ? (
-                           <a href={att.url} target="_blank" rel="noopener noreferrer">{att.name}</a>
+                           <a href={att.url} target="_blank" rel="noopener noreferrer" className="group-hover:underline">{att.name}</a>
                         ) : (
-                          <span>{att.name}</span>
+                          <span className="cursor-pointer" onClick={() => setImagePreviewUrl(att.url)}>{att.name}</span>
                         )}
                       </div>
                       <p className="text-xs text-muted-foreground">
@@ -490,7 +501,9 @@ export function CardDetailsDialog({
                         </div>
                     </PopoverContent>
                 </Popover>
-                
+
+                <CoverPopover card={card} onUpdate={handleUpdateCard} />
+
                 <Popover>
                     <PopoverTrigger asChild>
                         <Button variant="secondary" size="sm" className="justify-start"><Clock className="mr-2" /> Dates</Button>
@@ -522,7 +535,7 @@ export function CardDetailsDialog({
       {imagePreviewUrl && (
         <Dialog open={!!imagePreviewUrl} onOpenChange={() => setImagePreviewUrl(null)}>
             <DialogContent className="max-w-3xl p-2">
-                <DialogHeader>
+                 <DialogHeader>
                   <DialogTitle className="sr-only">Image Preview</DialogTitle>
                   <DialogDescription className="sr-only">A larger view of the attached image.</DialogDescription>
                 </DialogHeader>
@@ -534,4 +547,81 @@ export function CardDetailsDialog({
   );
 }
 
-    
+const coverColors = ["#10B981", "#F59E0B", "#EF4444", "#3B82F6", "#8B5CF6", "#6B7280", "#EC4899", "#F97316", "#06B6D4", "#84CC16" ];
+const unsplashPhotos = [
+    { id: '1', url: 'https://images.unsplash.com/photo-1715931219734-6BD09731737f?q=80&w=600', hint: 'mountain sunset' },
+    { id: '2', url: 'https://images.unsplash.com/photo-1715494493325-175519238f5e?q=80&w=600', hint: 'snowy rocks' },
+    { id: '3', url: 'https://images.unsplash.com/photo-1715931219734-6BD09731737f?q=80&w=600', hint: 'mountain sunset' },
+    { id: '4', url: 'https://images.unsplash.com/photo-1716024328325-58e46404885c?q=80&w=600', hint: 'palm tree' },
+    { id: '5', url: 'https://images.unsplash.com/photo-1715890276634-a253765d144b?q=80&w=600', hint: 'road sunset' },
+    { id: '6', url: 'https://images.unsplash.com/photo-1715942430193-684a8674936d?q=80&w=600', hint: 'red architecture' },
+]
+
+
+function CoverPopover({ card, onUpdate }: { card: Card; onUpdate: (updates: Partial<Card> | { cover: null }) => void }) {
+    const setCover = (cover: CardCover) => {
+        onUpdate({ cover: {...card.cover, ...cover } });
+    }
+    const removeCover = () => {
+        onUpdate({ cover: null });
+    }
+
+    return (
+        <Popover>
+            <PopoverTrigger asChild>
+                <Button variant="secondary" size="sm" className="justify-start"><CreditCard className="mr-2" /> Cover</Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
+                <div className="space-y-4">
+                    <div>
+                        <h4 className="font-medium text-sm mb-2">Size</h4>
+                        <div className="grid grid-cols-2 gap-2">
+                             <button className={cn("rounded-md border-2 p-1", card.cover?.size !== 'full' ? "border-primary" : "border-transparent")} onClick={() => setCover({ ...card.cover, type: card.cover?.type || 'color', value: card.cover?.value || '#6B7280', size: 'normal' })}>
+                                <div className="h-12 w-full rounded bg-muted flex flex-col gap-1.5 p-1.5">
+                                    <div className={cn("h-4 rounded-sm", card.cover?.type === 'image' ? 'bg-muted-foreground' : 'bg-primary')} />
+                                    <div className="h-1 w-10/12 rounded-full bg-muted-foreground/50" />
+                                    <div className="h-1 w-8/12 rounded-full bg-muted-foreground/50" />
+                                </div>
+                             </button>
+                             <button className={cn("rounded-md border-2 p-1", card.cover?.size === 'full' ? "border-primary" : "border-transparent")} onClick={() => setCover({ ...card.cover, type: card.cover?.type || 'color', value: card.cover?.value || '#6B7280', size: 'full' })}>
+                                <div className={cn("h-12 w-full rounded", card.cover?.type === 'image' ? 'bg-muted-foreground' : 'bg-primary')} />
+                             </button>
+                        </div>
+                        {card.cover && <Button size="sm" variant="outline" className="w-full mt-2" onClick={removeCover}>Remove cover</Button>}
+                    </div>
+
+                    <div>
+                        <h4 className="font-medium text-sm mb-2">Colors</h4>
+                        <div className="grid grid-cols-5 gap-2">
+                            {coverColors.map(color => (
+                                <button 
+                                  key={color} 
+                                  className="w-full h-8 rounded-md" 
+                                  style={{backgroundColor: color}}
+                                  onClick={() => setCover({ type: 'color', value: color, size: card.cover?.size || 'normal' })}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 className="font-medium text-sm mb-2">Attachments</h4>
+                         <Button variant="secondary" className="w-full">Upload a cover image</Button>
+                    </div>
+
+                    <div>
+                        <h4 className="font-medium text-sm mb-2">Photos from Unsplash</h4>
+                        <div className="grid grid-cols-3 gap-2">
+                            {unsplashPhotos.map(photo => (
+                                <button key={photo.id} onClick={() => setCover({ type: 'image', value: photo.url.replace('w=600', 'w=600&h=400'), size: card.cover?.size || 'normal' })}>
+                                    <Image src={photo.url} alt={photo.hint} width={100} height={60} className="rounded-md object-cover" />
+                                </button>
+                            ))}
+                        </div>
+                        <Button variant="secondary" className="w-full mt-2"><Search className="mr-2" /> Search for photos</Button>
+                    </div>
+                </div>
+            </PopoverContent>
+        </Popover>
+    )
+}

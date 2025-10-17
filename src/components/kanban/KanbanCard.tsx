@@ -10,6 +10,7 @@ import { Badge } from "../ui/badge";
 import { Clock, CheckSquare, Edit, Trash2 } from "lucide-react";
 import { format } from 'date-fns';
 import { Button } from "../ui/button";
+import Image from 'next/image';
 
 interface KanbanCardProps {
   card: Card;
@@ -64,6 +65,10 @@ export function KanbanCard({
 
   const openDialog = () => setIsDialogOpen(true);
 
+  const hasCover = !!card.cover;
+  const isFullCover = hasCover && card.cover?.size === 'full';
+  const coverIsImage = hasCover && card.cover?.type === 'image';
+
   return (
     <>
       <div className="relative group/card">
@@ -76,20 +81,37 @@ export function KanbanCard({
           onDragLeave={handleDragLeave}
           onClick={openDialog}
           className={cn(
-            "p-3 cursor-pointer transition-colors bg-card/90",
+            "cursor-pointer transition-colors bg-card/90",
             isDragged && "opacity-50 ring-2 ring-primary",
-            isDraggingOver && !isDragged && "ring-2 ring-accent"
+            isDraggingOver && !isDragged && "ring-2 ring-accent",
+            isFullCover && "p-0"
           )}
         >
-          <CardContent className="p-0 space-y-2">
+          {hasCover && !isFullCover && (
+            coverIsImage ? (
+                 <div className="relative h-20 w-full">
+                    <Image src={card.cover!.value} alt={card.title} fill className="object-cover rounded-t-lg" />
+                 </div>
+            ) : (
+                <div className="h-8 rounded-t-lg" style={{backgroundColor: card.cover!.value}} />
+            )
+          )}
+          {isFullCover && coverIsImage && (
+             <div className="relative h-32 w-full text-white font-bold p-3 flex items-end rounded-lg overflow-hidden">
+                <Image src={card.cover!.value} alt={card.title} fill className="object-cover" />
+                <div className="absolute inset-0 bg-black/40" />
+                <span className="relative z-10">{card.title}</span>
+             </div>
+          )}
+          <CardContent className={cn("p-3 space-y-2", isFullCover && "hidden")}>
             {card.labels && card.labels.length > 0 && (
               <div className="flex flex-wrap gap-1">
                 {card.labels.map(label => (
-                   <div 
-                     key={label.id} 
-                     className="px-2 py-1 text-xs font-semibold text-white rounded-full"
-                     style={{ backgroundColor: label.color }}
-                   >
+                  <div
+                    key={label.id}
+                    className="px-2 py-0.5 text-xs font-semibold rounded"
+                    style={{ backgroundColor: `${label.color}33`, color: label.color }}
+                  >
                     {label.text}
                   </div>
                 ))}
