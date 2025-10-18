@@ -40,16 +40,15 @@ export default function LoginPage() {
   const loginImage = PlaceHolderImages.find(p => p.id === 'login-image');
 
   return (
-    <div className="flex min-h-screen items-stretch">
-      <div className="absolute top-8 left-8 z-10">
-        <Link href="/" className="flex items-center space-x-2 text-lg font-semibold">
-          <LayoutGrid className="h-6 w-6 text-primary" />
-          <span>KanbanFlow</span>
-        </Link>
-      </div>
-
-      <div className="lg:w-1/2 flex items-center justify-center p-8">
-        <Tabs defaultValue="login" className="w-full max-w-sm z-10">
+    <div className="flex min-h-screen items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="flex justify-center mb-6">
+            <Link href="/" className="flex items-center space-x-2 text-lg font-semibold">
+              <LayoutGrid className="h-6 w-6 text-primary" />
+              <span>KanbanFlow</span>
+            </Link>
+        </div>
+        <Tabs defaultValue="login" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="login">Login</TabsTrigger>
             <TabsTrigger value="signup">Sign Up</TabsTrigger>
@@ -143,19 +142,6 @@ export default function LoginPage() {
             </Card>
           </TabsContent>
         </Tabs>
-      </div>
-      
-      <div className="hidden lg:flex lg:w-1/2 bg-muted items-center justify-center p-8">
-        {loginImage && (
-            <Image 
-                src={loginImage.imageUrl} 
-                alt={loginImage.description}
-                width={600}
-                height={600}
-                className="w-full h-auto max-w-md object-contain"
-                data-ai-hint={loginImage.imageHint}
-            />
-        )}
       </div>
     </div>
   );
