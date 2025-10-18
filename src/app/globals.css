@@ -43,14 +43,14 @@ body {
     --chart-5: 340 75% 55%;
     --radius: 0.5rem;
 
-    --sidebar-bg-start: 24 97% 62%;
-    --sidebar-bg-end: 279 81% 43%;
+    --sidebar-bg-start: 220 83% 64%;
+    --sidebar-bg-end: 220 83% 44%;
     --sidebar-text: 0 0% 100%;
     --sidebar-muted-text: 0 0% 100% / 0.7;
     --sidebar-active-bg: 0 0% 100% / 0.1;
     --sidebar-hover-bg: 0 0% 100% / 0.05;
     --sidebar-border: 0 0% 100% / 0.1;
-    --sidebar-cta-bg: 24 97% 62%;
+    --sidebar-cta-bg: 220 83% 64%;
     --sidebar-cta-text: 210 40% 98%;
   }
   .dark {
