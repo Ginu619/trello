@@ -127,7 +127,7 @@ export function MeetingCard({ meeting, team, variant = 'default', onMeetingUpdat
                 <CardHeader>
                     <div className="flex justify-between items-start">
                         <CardTitle className="text-lg flex-1 mr-4">{meeting.title}</CardTitle>
-                        <div className="flex items-center -mr-2 flex-shrink-0">
+                        <div className="flex items-center gap-2">
                             <MeetingStatusBadge status={meeting.status} />
                            {actionButton}
                         </div>
