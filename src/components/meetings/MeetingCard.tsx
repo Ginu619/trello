@@ -125,9 +125,9 @@ export function MeetingCard({ meeting, team, variant = 'default', onMeetingUpdat
         <>
             <Card className="flex flex-col bg-card/80 hover:bg-card/90 transition-colors cursor-pointer" onClick={openDetails}>
                 <CardHeader>
-                    <div className="flex justify-between items-start">
-                        <CardTitle className="text-lg flex-1 mr-4">{meeting.title}</CardTitle>
-                        <div className="flex items-center gap-2">
+                    <div>
+                        <CardTitle className="text-lg mb-2">{meeting.title}</CardTitle>
+                        <div className="flex justify-between items-center">
                             <MeetingStatusBadge status={meeting.status} />
                            {actionButton}
                         </div>
