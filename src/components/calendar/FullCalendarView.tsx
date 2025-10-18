@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Calendar, dateFnsLocalizer, Views, EventProps, View } from 'react-big-calendar';
+import { Calendar, dateFnsLocalizer, Views, EventProps, View, ToolbarProps } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -32,7 +32,7 @@ interface FullCalendarViewProps {
   onSelectEvent: (event: CalendarEvent) => void;
 }
 
-const CustomToolbar = (toolbar: any) => {
+const CustomToolbar = (toolbar: ToolbarProps) => {
   const goToBack = () => {
     toolbar.onNavigate('PREV');
   };
