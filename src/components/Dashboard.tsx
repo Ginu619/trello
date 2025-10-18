@@ -19,7 +19,6 @@ import {
     Settings,
     FileText,
   } from "lucide-react";
-import Link from "next/link";
 import { Header } from "./Header";
 import { usePathname } from "next/navigation";
   
@@ -40,20 +39,16 @@ export function Dashboard() {
                 <SidebarContent>
                     <SidebarMenu>
                     <SidebarMenuItem>
-                        <Link href="/" passHref legacyBehavior>
-                            <SidebarMenuButton isActive={isActive("/")} tooltip="Dashboard">
-                                <LayoutDashboard />
-                                <span>Dashboard</span>
-                            </SidebarMenuButton>
-                        </Link>
+                        <SidebarMenuButton href="/" isActive={isActive("/")} tooltip="Dashboard">
+                            <LayoutDashboard />
+                            <span>Dashboard</span>
+                        </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem>
-                        <Link href="/boards" passHref legacyBehavior>
-                            <SidebarMenuButton isActive={isActive("/boards")} tooltip="Projects">
-                                <LayoutGrid />
-                                <span>Projects</span>
-                            </SidebarMenuButton>
-                        </Link>
+                         <SidebarMenuButton href="/boards" isActive={isActive("/boards")} tooltip="Projects">
+                            <LayoutGrid />
+                            <span>Projects</span>
+                        </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem>
                         <SidebarMenuButton tooltip="Meetings">
