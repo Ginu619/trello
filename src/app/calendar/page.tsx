@@ -91,7 +91,7 @@ export default function CalendarPage() {
       }
       // @ts-ignore
       await createMeeting(newMeetingData);
-_    }
+    }
     fetchEvents(); // Refetch events to show the new/updated one
   };
 
@@ -117,7 +117,7 @@ _    }
         defaultStartDate={dialogState.startDate}
         defaultEndDate={dialogState.endDate}
        >
-         <></>
+         <div />
        </ScheduleMeetingDialog>
     </>
   );
