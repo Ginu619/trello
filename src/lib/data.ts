@@ -114,7 +114,8 @@ const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 export async function getMeetings(): Promise<Meeting[]> {
     await delay(100);
-    return JSON.parse(JSON.stringify(meetings));
+    const sortedMeetings = JSON.parse(JSON.stringify(meetings)).sort((a: Meeting, b: Meeting) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
+    return sortedMeetings;
 }
 
 export async function createMeeting(meetingData: Omit<Meeting, 'id' | 'status'>): Promise<Meeting> {
@@ -122,10 +123,31 @@ export async function createMeeting(meetingData: Omit<Meeting, 'id' | 'status'>)
     const newMeeting: Meeting = {
         ...meetingData,
         id: `meeting-${Date.now()}`,
-        status: 'upcoming'
+        status: new Date(meetingData.startDate) > new Date() ? 'upcoming' : 'ongoing',
     };
     meetings.unshift(newMeeting);
     return newMeeting;
+}
+
+export async function updateMeeting(meetingId: string, updates: Partial<Omit<Meeting, 'id' | 'status'>>): Promise<Meeting> {
+    await delay(100);
+    const meetingIndex = meetings.findIndex(m => m.id === meetingId);
+    if (meetingIndex === -1) throw new Error("Meeting not found");
+    
+    const originalMeeting = meetings[meetingIndex];
+    const updatedMeeting = { ...originalMeeting, ...updates };
+
+    if(updates.startDate) {
+        updatedMeeting.status = new Date(updates.startDate) > new Date() ? 'upcoming' : 'ongoing';
+    }
+
+    meetings[meetingIndex] = updatedMeeting;
+    return updatedMeeting;
+}
+
+export async function deleteMeeting(meetingId: string): Promise<void> {
+    await delay(100);
+    meetings = meetings.filter(m => m.id !== meetingId);
 }
 
 

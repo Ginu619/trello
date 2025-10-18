@@ -2,23 +2,30 @@
 'use client';
 import { Meeting, User } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
-import { format, formatDistanceToNow, isToday } from 'date-fns';
+import { format, isToday } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
-import { Clock, Copy, Projector, Video } from 'lucide-react';
+import { Clock, Copy, Edit, MoreHorizontal, Projector, Trash2, Video } from 'lucide-react';
 import { MeetingStatusBadge } from './MeetingStatusBadge';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../ui/alert-dialog';
+import { useState } from 'react';
+import { ScheduleMeetingDialog } from './ScheduleMeetingDialog';
 
 interface MeetingCardProps {
     meeting: Meeting;
     team: User[];
     variant?: 'default' | 'past';
+    onMeetingUpdate: (updatedMeeting: Meeting) => void;
+    onMeetingDelete: (meetingId: string) => void;
 }
 
-export function MeetingCard({ meeting, team, variant = 'default' }: MeetingCardProps) {
+export function MeetingCard({ meeting, team, variant = 'default', onMeetingUpdate, onMeetingDelete }: MeetingCardProps) {
     const { toast } = useToast();
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
     const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase();
 
@@ -26,10 +33,14 @@ export function MeetingCard({ meeting, team, variant = 'default' }: MeetingCardP
         navigator.clipboard.writeText(meeting.meetingLink);
         toast({ title: 'Meeting link copied!' });
     }
+    
+    const handleMeetingScheduled = (updatedMeeting: Meeting) => {
+        onMeetingUpdate(updatedMeeting);
+    }
 
     if (variant === 'past') {
         return (
-            <Card className="flex items-center justify-between p-4 bg-card/60">
+             <Card className="flex items-center justify-between p-4 bg-card/60">
                  <div className="flex items-center gap-4">
                     <div className="bg-muted p-3 rounded-lg">
                         <Video className="h-6 w-6 text-muted-foreground" />
@@ -55,17 +66,57 @@ export function MeetingCard({ meeting, team, variant = 'default' }: MeetingCardP
                         })}
                     </div>
                     <Button variant="secondary" size="sm">View Recording</Button>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="h-4 w-4"/></Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-destructive focus:text-destructive">
+                                <Trash2 className="mr-2 h-4 w-4"/> Delete
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
+                 <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                This will permanently delete the meeting "{meeting.title}".
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => onMeetingDelete(meeting.id)}>Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             </Card>
         )
     }
 
     return (
+        <>
         <Card className="flex flex-col bg-card/80">
             <CardHeader>
                 <div className="flex justify-between items-start">
                     <CardTitle className="text-lg">{meeting.title}</CardTitle>
-                    <MeetingStatusBadge status={meeting.status} />
+                    <div className="flex items-center">
+                        <MeetingStatusBadge status={meeting.status} />
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 -mr-2"><MoreHorizontal className="h-4 w-4"/></Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
+                                    <Edit className="mr-2 h-4 w-4"/> Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setIsDeleteDialogOpen(true)} className="text-destructive focus:text-destructive">
+                                    <Trash2 className="mr-2 h-4 w-4"/> Delete
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
                 </div>
                 <CardDescription className="flex items-center gap-2 pt-2 text-sm">
                     <Clock className="h-4 w-4"/>
@@ -110,5 +161,30 @@ export function MeetingCard({ meeting, team, variant = 'default' }: MeetingCardP
                 <Button variant="secondary" size="icon" onClick={handleCopyLink}><Copy className="h-4 w-4"/></Button>
             </CardFooter>
         </Card>
+        
+        <ScheduleMeetingDialog
+            isOpen={isEditDialogOpen}
+            onOpenChange={setIsEditDialogOpen}
+            onMeetingScheduled={handleMeetingScheduled}
+            meetingToEdit={meeting}
+        >
+            <></>
+        </ScheduleMeetingDialog>
+
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        This will permanently delete the meeting "{meeting.title}".
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => onMeetingDelete(meeting.id)}>Delete</AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+        </>
     )
 }

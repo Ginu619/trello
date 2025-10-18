@@ -17,10 +17,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon, Loader2, Users } from "lucide-react";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 import { ReactNode, useState, useEffect } from "react";
-import { createMeeting, getBoards, getTeamMembers } from "@/lib/data";
+import { createMeeting, getBoards, getTeamMembers, updateMeeting } from "@/lib/data";
 import { Board, Meeting, User } from "@/lib/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { useToast } from "@/hooks/use-toast";
@@ -28,11 +28,23 @@ import { Checkbox } from "../ui/checkbox";
 
 interface ScheduleMeetingDialogProps {
     children: ReactNode;
-    onMeetingCreated: (newMeeting: Meeting) => void;
+    onMeetingScheduled: (newMeeting: Meeting) => void;
+    meetingToEdit?: Meeting;
+    isOpen?: boolean;
+    onOpenChange?: (isOpen: boolean) => void;
 }
 
-export function ScheduleMeetingDialog({ children, onMeetingCreated }: ScheduleMeetingDialogProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export function ScheduleMeetingDialog({ 
+    children, 
+    onMeetingScheduled,
+    meetingToEdit,
+    isOpen: controlledIsOpen, 
+    onOpenChange: setControlledIsOpen 
+}: ScheduleMeetingDialogProps) {
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  const isOpen = controlledIsOpen ?? internalIsOpen;
+  const setIsOpen = setControlledIsOpen ?? setInternalIsOpen;
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState<Date | undefined>();
@@ -47,12 +59,36 @@ export function ScheduleMeetingDialog({ children, onMeetingCreated }: ScheduleMe
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
+  const isEditMode = !!meetingToEdit;
+
   useEffect(() => {
     if (isOpen) {
       getTeamMembers().then(setTeam);
       getBoards().then(setBoards);
+
+      if (isEditMode) {
+          setTitle(meetingToEdit.title);
+          setDescription(meetingToEdit.description);
+          const startDate = parseISO(meetingToEdit.startDate);
+          setDate(startDate);
+          setStartTime(format(startDate, 'HH:mm'));
+          setEndTime(format(parseISO(meetingToEdit.endDate), 'HH:mm'));
+          setParticipants(meetingToEdit.participants);
+          setMeetingLink(meetingToEdit.meetingLink);
+          setProject(meetingToEdit.project);
+      } else {
+          // Reset form for new meeting
+          setTitle("");
+          setDescription("");
+          setDate(undefined);
+          setStartTime("10:00");
+          setEndTime("11:00");
+          setParticipants([]);
+          setMeetingLink("https://meet.google.com/");
+          setProject(undefined);
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, meetingToEdit, isEditMode]);
 
   const handleParticipantToggle = (participantId: string) => {
     setParticipants(prev => 
@@ -77,27 +113,31 @@ export function ScheduleMeetingDialog({ children, onMeetingCreated }: ScheduleMe
     const endDate = new Date(date);
     endDate.setHours(endHours, endMinutes);
 
+    const meetingData = {
+        title,
+        description,
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+        participants,
+        meetingLink,
+        project
+    };
+
     try {
-        const newMeeting = await createMeeting({
-            title,
-            description,
-            startDate: startDate.toISOString(),
-            endDate: endDate.toISOString(),
-            participants,
-            meetingLink,
-            project
-        });
-        toast({ title: 'Meeting Scheduled!', description: `${title} has been added to your calendar.`});
-        onMeetingCreated(newMeeting);
+        let resultMeeting;
+        if(isEditMode) {
+            resultMeeting = await updateMeeting(meetingToEdit.id, meetingData);
+            toast({ title: 'Meeting Updated!', description: `${title} has been updated.`});
+        } else {
+            resultMeeting = await createMeeting(meetingData);
+            toast({ title: 'Meeting Scheduled!', description: `${title} has been added to your calendar.`});
+        }
+        
+        onMeetingScheduled(resultMeeting);
         setIsOpen(false);
-        // Reset form
-        setTitle("");
-        setDescription("");
-        setDate(undefined);
-        setParticipants([]);
 
     } catch (error) {
-        toast({ variant: 'destructive', title: 'Something went wrong', description: 'Could not schedule the meeting.'})
+        toast({ variant: 'destructive', title: 'Something went wrong', description: 'Could not save the meeting.'})
     } finally {
         setIsSaving(false);
     }
@@ -106,12 +146,12 @@ export function ScheduleMeetingDialog({ children, onMeetingCreated }: ScheduleMe
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      {!isEditMode && <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Schedule a New Meeting</DialogTitle>
+          <DialogTitle>{isEditMode ? 'Edit Meeting' : 'Schedule a New Meeting'}</DialogTitle>
           <DialogDescription>
-            Organize your next team sync, planning session, or call.
+            {isEditMode ? 'Update the details for your meeting.' : 'Organize your next team sync, planning session, or call.'}
           </DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
@@ -193,11 +233,11 @@ export function ScheduleMeetingDialog({ children, onMeetingCreated }: ScheduleMe
                                 {team.map(member => (
                                     <div key={member.id} className="flex items-center gap-2">
                                         <Checkbox 
-                                            id={`participant-${member.id}`} 
+                                            id={`participant-${member.id}-${isEditMode}`} 
                                             checked={participants.includes(member.id)}
                                             onCheckedChange={() => handleParticipantToggle(member.id)}
                                         />
-                                        <Label htmlFor={`participant-${member.id}`} className="font-normal flex-grow">{member.name}</Label>
+                                        <Label htmlFor={`participant-${member.id}-${isEditMode}`} className="font-normal flex-grow">{member.name}</Label>
                                     </div>
                                 ))}
                             </div>
@@ -211,7 +251,7 @@ export function ScheduleMeetingDialog({ children, onMeetingCreated }: ScheduleMe
           <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
           <Button onClick={handleScheduleMeeting} disabled={isSaving}>
             {isSaving && <Loader2 className="mr-2 animate-spin" />}
-            Schedule Meeting
+            {isEditMode ? 'Save Changes' : 'Schedule Meeting'}
           </Button>
         </DialogFooter>
       </DialogContent>
