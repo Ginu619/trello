@@ -3,8 +3,8 @@
     {
       "id": "hero-image",
       "description": "A stylized Kanban board interface.",
-      "imageUrl": "https://images.unsplash.com/photo-1620325867502-221cfb5faa5f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxwcm9qZWN0JTIwbWFuYWdlbWVudHxlbnwwfHx8fDE3NjA3MzMwNTh8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "project management"
+      "imageUrl": "https://images.unsplash.com/photo-1632785947735-a13132d47a4d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxrYW5iYW58ZW58MHx8fHwxNzYwNzg1MzQ0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "kanban board"
     },
     {
       "id": "board-thumb-1",

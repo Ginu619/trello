@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -33,6 +34,11 @@ export function Header() {
           <LayoutGrid className="h-6 w-6 text-primary" />
           <span className="font-bold">TaskHive</span>
         </Link>
+        <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
+            <Link href="#" className="text-muted-foreground/80 hover:text-foreground">Features</Link>
+            <Link href="#" className="text-muted-foreground/80 hover:text-foreground">About Us</Link>
+            <Link href="#" className="text-muted-foreground/80 hover:text-foreground">Contact</Link>
+        </nav>
         <div className="flex flex-1 items-center justify-end space-x-4">
           <nav className="flex items-center space-x-2">
             {loading ? (
