@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -35,14 +36,60 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-4">
-       <div className="absolute top-8 left-8">
+    <div className="flex min-h-screen flex-col items-center justify-center p-4 relative overflow-hidden">
+      <div className="absolute inset-0 z-0 opacity-5">
+        <svg
+          className="w-full h-full"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 800 800"
+        >
+          <defs>
+            <pattern
+              id="pattern"
+              width="40"
+              height="40"
+              patternUnits="userSpaceOnUse"
+            >
+              <rect
+                width="38"
+                height="38"
+                x="1"
+                y="1"
+                fill="none"
+                stroke="hsl(var(--foreground))"
+                strokeWidth="0.5"
+                rx="4"
+              />
+              <path
+                d="M 10 10 h 20"
+                stroke="hsl(var(--foreground))"
+                strokeWidth="0.5"
+                strokeLinecap="round"
+              />
+              <path
+                d="M 10 16 h 15"
+                stroke="hsl(var(--foreground))"
+                strokeWidth="0.5"
+                strokeLinecap="round"
+              />
+               <path
+                d="M 10 22 h 12"
+                stroke="hsl(var(--foreground))"
+                strokeWidth="0.5"
+                strokeLinecap="round"
+              />
+            </pattern>
+          </defs>
+          <rect width="800" height="800" fill="url(#pattern)" />
+        </svg>
+      </div>
+       <div className="absolute top-8 left-8 z-10">
         <Link href="/" className="flex items-center space-x-2 text-lg font-semibold">
           <LayoutGrid className="h-6 w-6 text-primary" />
           <span>KanbanFlow</span>
         </Link>
       </div>
-      <Tabs defaultValue="login" className="w-full max-w-sm">
+      <Tabs defaultValue="login" className="w-full max-w-sm z-10">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="login">Login</TabsTrigger>
           <TabsTrigger value="signup">Sign Up</TabsTrigger>
