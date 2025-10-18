@@ -28,7 +28,7 @@ const menuItems = [
   {
     label: "Dashboard",
     icon: LayoutDashboard,
-    href: "/boards",
+    href: "/dashboard",
   },
   {
     label: "Projects",
