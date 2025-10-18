@@ -73,6 +73,12 @@ export type Activity = {
     createdAt: string;
 }
 
+export type AgendaItem = {
+    id: string;
+    text: string;
+    completed: boolean;
+};
+
 export type Meeting = {
     id: string;
     title: string;
@@ -83,4 +89,5 @@ export type Meeting = {
     meetingLink: string;
     project?: string;
     status: 'upcoming' | 'ongoing' | 'past';
+    agendaItems?: AgendaItem[];
 }

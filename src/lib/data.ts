@@ -1,5 +1,5 @@
 
-import type { Board, List, Card, User, Label, ChecklistItem, Comment, Activity, Attachment, Meeting } from './types';
+import type { Board, List, Card, User, Label, ChecklistItem, Comment, Activity, Attachment, Meeting, AgendaItem } from './types';
 
 const users: User[] = [
   { id: 'user-1', name: 'Alex', email: 'alex@example.com', avatarUrl: 'https://api.dicebear.com/7.x/initials/svg?seed=Alex' },
@@ -82,7 +82,12 @@ let meetings: Meeting[] = [
         participants: ['user-1', 'user-2', 'user-3'],
         meetingLink: 'https://meet.google.com/xyz-abc-def',
         project: 'Project Phoenix',
-        status: 'upcoming'
+        status: 'upcoming',
+        agendaItems: [
+            { id: 'agenda-1-1', text: 'Review previous sprint results', completed: true },
+            { id: 'agenda-1-2', text: 'Discuss and prioritize backlog items', completed: false },
+            { id: 'agenda-1-3', text: 'Assign tasks for the new sprint', completed: false },
+        ]
     },
     {
         id: 'meeting-2',
@@ -93,7 +98,11 @@ let meetings: Meeting[] = [
         participants: ['user-1', 'user-2'],
         meetingLink: 'https://meet.google.com/xyz-abc-def',
         project: 'Marketing Campaign',
-        status: 'ongoing'
+        status: 'ongoing',
+        agendaItems: [
+            { id: 'agenda-2-1', text: 'Review content performance', completed: false },
+            { id: 'agenda-2-2', text: 'Plan upcoming social media posts', completed: false },
+        ]
     },
     {
         id: 'meeting-3',
@@ -142,7 +151,7 @@ export async function updateMeeting(meetingId: string, updates: Partial<Omit<Mee
     }
 
     meetings[meetingIndex] = updatedMeeting;
-    return updatedMeeting;
+    return JSON.parse(JSON.stringify(updatedMeeting));
 }
 
 export async function deleteMeeting(meetingId: string): Promise<void> {
