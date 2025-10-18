@@ -138,7 +138,7 @@ export default function MeetingsPage() {
                 {pastMeetings.length > 0 && (
                     <section>
                         <h2 className="text-xl font-semibold mb-4">Past Meetings</h2>
-                         <div className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-2">
                             {pastMeetings.map(meeting => (
                                 <MeetingCard 
                                     key={meeting.id} 
