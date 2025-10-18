@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const newUser: User = { id: `user-${Date.now()}`, name, email, avatarUrl: `https://api.dicebear.com/7.x/initials/svg?seed=${name}` };
         setUser(newUser);
         localStorage.setItem("kanban-user", JSON.stringify(newUser));
-        toast({ title: "Signup Successful", description: `Welcome to KanbanFlow, ${name}!` });
+        toast({ title: "Signup Successful", description: `Welcome to TaskHive, ${name}!` });
         router.push("/boards");
         setLoading(false);
       }, 500);

@@ -45,7 +45,7 @@ export default function LoginPage() {
         <div className="flex justify-center mb-6">
             <Link href="/" className="flex items-center space-x-2 text-lg font-semibold">
               <LayoutGrid className="h-6 w-6 text-primary" />
-              <span>KanbanFlow</span>
+              <span>TaskHive</span>
             </Link>
         </div>
         <Tabs defaultValue="login" className="w-full">

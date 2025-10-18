@@ -35,7 +35,7 @@ export default function Home() {
           <div className="container mx-auto px-4">
             <h1 className="text-4xl md:text-6xl font-bold font-headline tracking-tight">Organize anything, together.</h1>
             <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground">
-              KanbanFlow is the visual tool that empowers your team to manage any type of project, workflow, or task tracking.
+              TaskHive is the visual tool that empowers your team to manage any type of project, workflow, or task tracking.
             </p>
             <div className="mt-8 flex justify-center gap-4">
               <Button asChild size="lg">
@@ -79,7 +79,7 @@ export default function Home() {
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl md:text-4xl font-bold font-headline">Ready to Get Organized?</h2>
             <p className="mt-4 max-w-xl mx-auto text-lg text-muted-foreground">
-              Join thousands of teams who are already building their best work with KanbanFlow.
+              Join thousands of teams who are already building their best work with TaskHive.
             </p>
             <div className="mt-8">
               <Button asChild size="lg" variant="secondary">
@@ -92,7 +92,7 @@ export default function Home() {
 
       <footer className="py-8">
         <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} KanbanFlow. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} TaskHive. All rights reserved.</p>
         </div>
       </footer>
     </div>
