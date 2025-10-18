@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -116,16 +117,16 @@ body {
     @apply p-0 border-none bg-transparent;
   }
   .rbc-event-meeting {
-     /* Handled in component */
+     @apply bg-primary/80 text-primary-foreground;
   }
   .rbc-event-task {
-     /* Handled in component */
+     @apply bg-transparent border border-chart-2 text-foreground;
   }
   .rbc-event:focus, .rbc-day-slot .rbc-background-event:focus {
     outline: none;
   }
   .rbc-month-view, .rbc-time-view, .rbc-agenda-view {
-    @apply border-border;
+    @apply border-none;
   }
   .rbc-time-header-content, .rbc-time-content {
      @apply border-border;

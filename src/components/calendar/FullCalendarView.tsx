@@ -2,7 +2,7 @@
 'use client';
 
 import { Calendar, dateFnsLocalizer, Views, EventProps, View } from 'react-big-calendar';
-import { format, parse, startOfWeek, getDay, addHours } from 'date-fns';
+import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { CalendarEvent } from '@/lib/types';
@@ -55,20 +55,23 @@ const CustomToolbar = (toolbar: any) => {
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between mb-4 gap-4">
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="icon" onClick={goToBack}><ChevronLeft className="h-4 w-4" /></Button>
-        <Button variant="outline" onClick={goToCurrent}>Today</Button>
-        <Button variant="outline" size="icon" onClick={goToNext}><ChevronRight className="h-4 w-4" /></Button>
-         <h2 className="text-xl sm:text-2xl font-bold text-foreground ml-4">
+        <h2 className="text-xl sm:text-2xl font-bold text-foreground">
             {toolbar.label}
         </h2>
+        <div className="flex items-center gap-1 ml-4">
+            <Button variant="outline" size="icon" onClick={goToBack}><ChevronLeft className="h-4 w-4" /></Button>
+            <Button variant="outline" onClick={goToCurrent}>Today</Button>
+            <Button variant="outline" size="icon" onClick={goToNext}><ChevronRight className="h-4 w-4" /></Button>
+        </div>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 rounded-md bg-muted p-1">
         {(toolbar.views as (keyof typeof viewNames)[]).map(view => (
           <Button
             key={view}
-            variant={toolbar.view === view ? 'default' : 'outline'}
+            variant={toolbar.view === view ? 'default' : 'ghost'}
             onClick={() => toolbar.onView(view)}
             size="sm"
+            className="h-8 px-3"
           >
             {viewNames[view]}
           </Button>
@@ -80,13 +83,15 @@ const CustomToolbar = (toolbar: any) => {
 
 const CustomEvent = ({ event }: EventProps<CalendarEvent>) => {
   const content = (
-      <div className={cn("p-1 h-full text-xs flex flex-col rounded-md",
-        event.type === 'meeting' ? 'bg-primary/20 text-primary-foreground/80 border border-primary/50' : 'bg-green-600/20 text-green-100 border border-green-600/50',
+      <div className={cn("p-1 h-full text-xs flex rounded-md overflow-hidden",
+        event.type === 'meeting' ? 'rbc-event-meeting' : 'rbc-event-task',
       )}>
-        <strong className="truncate font-semibold">{event.title}</strong>
-        {event.start && event.end && !event.allDay && (
-            <p className="text-xs">{`${format(event.start, 'h:mm a')} - ${format(event.end, 'h:mm a')}`}</p>
-        )}
+        <div className="flex flex-col w-full">
+            <strong className="truncate font-semibold">{event.title}</strong>
+            {event.start && event.end && !event.allDay && (
+                <p className="text-xs truncate">{`${format(event.start, 'h:mm a')} - ${format(event.end, 'h:mm a')}`}</p>
+            )}
+        </div>
       </div>
   );
 
@@ -105,7 +110,7 @@ export function FullCalendarView({ events, onSelectSlot, onSelectEvent }: FullCa
   }), [])
 
   return (
-    <div className="h-[calc(100vh-8rem)] bg-card p-4 rounded-lg border text-foreground">
+    <div className="h-[calc(100vh-10rem)] bg-card p-4 rounded-lg border text-foreground">
       <Calendar
         localizer={localizer}
         events={events}
@@ -125,7 +130,6 @@ export function FullCalendarView({ events, onSelectSlot, onSelectEvent }: FullCa
         eventPropGetter={(event) => ({
             className: cn(
                 '!rounded-md !border-0 !p-0',
-                event.type === 'meeting' ? 'rbc-event-meeting' : 'rbc-event-task',
             ),
         })}
       />
