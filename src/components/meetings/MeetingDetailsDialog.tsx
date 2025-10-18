@@ -12,7 +12,7 @@ import { Checkbox } from '../ui/checkbox';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Progress } from '../ui/progress';
-import { Calendar, CheckSquare, Clock, Copy, List, Loader2, Plus, Projector, Trash2, Users, Video } from 'lucide-react';
+import { Calendar, CheckSquare, Clock, Copy, List, Loader2, Plus, Projector, RefreshCw, Trash2, Users, Video } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { MeetingStatusBadge } from './MeetingStatusBadge';
@@ -73,6 +73,13 @@ export function MeetingDetailsDialog({ isOpen, onOpenChange, meeting: initialMee
         navigator.clipboard.writeText(meeting.meetingLink);
         toast({ title: 'Meeting link copied!' });
     };
+    
+    const recurrenceText = {
+        none: 'Does not repeat',
+        daily: 'Repeats daily',
+        weekly: 'Repeats weekly',
+        monthly: 'Repeats monthly',
+    }
 
     const agendaProgress = (meeting.agendaItems?.length ?? 0) > 0 ? ((meeting.agendaItems?.filter(i => i.completed).length ?? 0) / meeting.agendaItems!.length) * 100 : 0;
 
@@ -87,6 +94,9 @@ export function MeetingDetailsDialog({ isOpen, onOpenChange, meeting: initialMee
                     <DialogDescription className="flex items-center gap-4 text-sm pt-2">
                         <span className="flex items-center gap-2"><Calendar className="h-4 w-4"/> {isToday(new Date(meeting.startDate)) ? 'Today' : format(new Date(meeting.startDate), 'E, MMM d, yyyy')}</span>
                         <span className="flex items-center gap-2"><Clock className="h-4 w-4"/> {format(new Date(meeting.startDate), 'h:mm a')} - {format(new Date(meeting.endDate), 'h:mm a')}</span>
+                         {meeting.recurrence && meeting.recurrence !== 'none' && (
+                            <span className="flex items-center gap-2"><RefreshCw className="h-4 w-4" /> {recurrenceText[meeting.recurrence]}</span>
+                        )}
                     </DialogDescription>
                 </DialogHeader>
 

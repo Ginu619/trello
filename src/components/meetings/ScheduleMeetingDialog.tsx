@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon, Loader2, Users } from "lucide-react";
+import { CalendarIcon, Loader2, RefreshCw, Users } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 import { ReactNode, useState, useEffect } from "react";
@@ -33,6 +33,8 @@ interface ScheduleMeetingDialogProps {
     isOpen?: boolean;
     onOpenChange?: (isOpen: boolean) => void;
 }
+
+type Recurrence = 'none' | 'daily' | 'weekly' | 'monthly';
 
 export function ScheduleMeetingDialog({ 
     children, 
@@ -53,6 +55,7 @@ export function ScheduleMeetingDialog({
   const [participants, setParticipants] = useState<string[]>([]);
   const [meetingLink, setMeetingLink] = useState("https://meet.google.com/");
   const [project, setProject] = useState<string | undefined>();
+  const [recurrence, setRecurrence] = useState<Recurrence>("none");
 
   const [team, setTeam] = useState<User[]>([]);
   const [boards, setBoards] = useState<Board[]>([]);
@@ -76,6 +79,7 @@ export function ScheduleMeetingDialog({
           setParticipants(meetingToEdit.participants);
           setMeetingLink(meetingToEdit.meetingLink);
           setProject(meetingToEdit.project);
+          setRecurrence(meetingToEdit.recurrence || 'none');
       } else {
           // Reset form for new meeting
           setTitle("");
@@ -86,6 +90,7 @@ export function ScheduleMeetingDialog({
           setParticipants([]);
           setMeetingLink("https://meet.google.com/");
           setProject(undefined);
+          setRecurrence("none");
       }
     }
   }, [isOpen, meetingToEdit, isEditMode]);
@@ -120,7 +125,8 @@ export function ScheduleMeetingDialog({
         endDate: endDate.toISOString(),
         participants,
         meetingLink,
-        project
+        project,
+        recurrence,
     };
 
     try {
@@ -219,6 +225,20 @@ export function ScheduleMeetingDialog({
                     </div>
                 </div>
                 <div className="space-y-2">
+                    <Label htmlFor="recurrence">Recurrence</Label>
+                    <Select value={recurrence} onValueChange={(value: Recurrence) => setRecurrence(value)}>
+                        <SelectTrigger id="recurrence">
+                            <SelectValue placeholder="Does not repeat" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="none">Does not repeat</SelectItem>
+                            <SelectItem value="daily">Daily</SelectItem>
+                            <SelectItem value="weekly">Weekly</SelectItem>
+                            <SelectItem value="monthly">Monthly</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div className="space-y-2">
                     <Label>Participants</Label>
                      <Popover>
                         <PopoverTrigger asChild>
@@ -233,11 +253,11 @@ export function ScheduleMeetingDialog({
                                 {team.map(member => (
                                     <div key={member.id} className="flex items-center gap-2">
                                         <Checkbox 
-                                            id={`participant-${member.id}-${isEditMode}`} 
+                                            id={`participant-${member.id}-${isEditMode ? 'edit' : 'create'}`} 
                                             checked={participants.includes(member.id)}
                                             onCheckedChange={() => handleParticipantToggle(member.id)}
                                         />
-                                        <Label htmlFor={`participant-${member.id}-${isEditMode}`} className="font-normal flex-grow">{member.name}</Label>
+                                        <Label htmlFor={`participant-${member.id}-${isEditMode ? 'edit' : 'create'}`} className="font-normal flex-grow">{member.name}</Label>
                                     </div>
                                 ))}
                             </div>

@@ -83,6 +83,7 @@ let meetings: Meeting[] = [
         meetingLink: 'https://meet.google.com/xyz-abc-def',
         project: 'Project Phoenix',
         status: 'upcoming',
+        recurrence: 'weekly',
         agendaItems: [
             { id: 'agenda-1-1', text: 'Review previous sprint results', completed: true },
             { id: 'agenda-1-2', text: 'Discuss and prioritize backlog items', completed: false },
@@ -99,6 +100,7 @@ let meetings: Meeting[] = [
         meetingLink: 'https://meet.google.com/xyz-abc-def',
         project: 'Marketing Campaign',
         status: 'ongoing',
+        recurrence: 'none',
         agendaItems: [
             { id: 'agenda-2-1', text: 'Review content performance', completed: false },
             { id: 'agenda-2-2', text: 'Plan upcoming social media posts', completed: false },
@@ -113,7 +115,8 @@ let meetings: Meeting[] = [
         participants: ['user-1', 'user-3'],
         meetingLink: 'https://meet.google.com/xyz-abc-def',
         project: 'Project Phoenix',
-        status: 'past'
+        status: 'past',
+        recurrence: 'none',
     }
 ];
 

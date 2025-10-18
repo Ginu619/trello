@@ -90,4 +90,5 @@ export type Meeting = {
     project?: string;
     status: 'upcoming' | 'ongoing' | 'past';
     agendaItems?: AgendaItem[];
+    recurrence?: 'none' | 'daily' | 'weekly' | 'monthly';
 }
