@@ -1,9 +1,10 @@
-import type { Board, List, Card, User, Label, ChecklistItem, Comment, Activity, Attachment } from './types';
+
+import type { Board, List, Card, User, Label, ChecklistItem, Comment, Activity, Attachment, Meeting } from './types';
 
 const users: User[] = [
-  { id: 'user-1', name: 'Alex', avatarUrl: 'https://api.dicebear.com/7.x/initials/svg?seed=Alex' },
-  { id: 'user-2', name: 'Beth', avatarUrl: 'https://api.dicebear.com/7.x/initials/svg?seed=Beth' },
-  { id: 'user-3', name: 'Chris', avatarUrl: 'https://api.dicebear.com/7.x/initials/svg?seed=Chris' },
+  { id: 'user-1', name: 'Alex', email: 'alex@example.com', avatarUrl: 'https://api.dicebear.com/7.x/initials/svg?seed=Alex' },
+  { id: 'user-2', name: 'Beth', email: 'beth@example.com', avatarUrl: 'https://api.dicebear.com/7.x/initials/svg?seed=Beth' },
+  { id: 'user-3', name: 'Chris', email: 'chris@example.com', avatarUrl: 'https://api.dicebear.com/7.x/initials/svg?seed=Chris' },
 ];
 
 const labels: Label[] = [
@@ -71,8 +72,62 @@ let boards: Board[] = [
   },
 ];
 
+let meetings: Meeting[] = [
+    {
+        id: 'meeting-1',
+        title: 'Project Phoenix - Sprint Planning',
+        description: 'Plan the upcoming sprint for Project Phoenix. Review backlog and assign tasks.',
+        startDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+        endDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000 + 60 * 60 * 1000).toISOString(),
+        participants: ['user-1', 'user-2', 'user-3'],
+        meetingLink: 'https://meet.google.com/xyz-abc-def',
+        project: 'Project Phoenix',
+        status: 'upcoming'
+    },
+    {
+        id: 'meeting-2',
+        title: 'Marketing Weekly Sync',
+        description: 'Weekly sync for the marketing team to discuss campaign progress.',
+        startDate: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+        endDate: new Date(Date.now() + 20 * 60 * 1000).toISOString(),
+        participants: ['user-1', 'user-2'],
+        meetingLink: 'https://meet.google.com/xyz-abc-def',
+        project: 'Marketing Campaign',
+        status: 'ongoing'
+    },
+    {
+        id: 'meeting-3',
+        title: 'Q3 Product Roadmap Review',
+        description: 'Review the product roadmap for the third quarter.',
+        startDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+        endDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000 + 90 * 60 * 1000).toISOString(),
+        participants: ['user-1', 'user-3'],
+        meetingLink: 'https://meet.google.com/xyz-abc-def',
+        project: 'Project Phoenix',
+        status: 'past'
+    }
+];
+
+
 // Simulate API latency
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+export async function getMeetings(): Promise<Meeting[]> {
+    await delay(100);
+    return JSON.parse(JSON.stringify(meetings));
+}
+
+export async function createMeeting(meetingData: Omit<Meeting, 'id' | 'status'>): Promise<Meeting> {
+    await delay(100);
+    const newMeeting: Meeting = {
+        ...meetingData,
+        id: `meeting-${Date.now()}`,
+        status: 'upcoming'
+    };
+    meetings.unshift(newMeeting);
+    return newMeeting;
+}
+
 
 export async function getTeamMembers(): Promise<User[]> {
     await delay(50);

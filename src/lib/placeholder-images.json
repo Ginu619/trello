@@ -29,6 +29,12 @@
       "description": "An illustration of people managing tasks around a giant clock.",
       "imageUrl": "https://images.unsplash.com/photo-1531403009284-440f080d1e12?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHx0YXNrJTIwbWFuYWdlbWVudHxlbnwwfHx8fDE3NjA3NTQyNDJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "task management"
+    },
+    {
+      "id": "meetings-hero",
+      "description": "An illustration showing people in a productive meeting.",
+      "imageUrl": "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1080",
+      "imageHint": "team meeting"
     }
   ]
 }

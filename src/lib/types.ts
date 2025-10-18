@@ -1,3 +1,4 @@
+
 export type Attachment = {
   id: string;
   name: string;
@@ -28,7 +29,7 @@ export type Card = {
 };
 
 export type Label = {
-  id: string;
+  id:string;
   text: string;
   color: string;
 };
@@ -55,6 +56,7 @@ export type User = {
   id: string;
   name: string;
   avatarUrl: string;
+  email: string;
 }
 
 export type Comment = {
@@ -69,4 +71,16 @@ export type Activity = {
     userId: string;
     description: string;
     createdAt: string;
+}
+
+export type Meeting = {
+    id: string;
+    title: string;
+    description: string;
+    startDate: string;
+    endDate: string;
+    participants: string[];
+    meetingLink: string;
+    project?: string;
+    status: 'upcoming' | 'ongoing' | 'past';
 }
