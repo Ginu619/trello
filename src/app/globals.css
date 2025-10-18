@@ -45,8 +45,8 @@ body {
 
     --sidebar-bg-start: 220 83% 64%;
     --sidebar-bg-end: 220 83% 44%;
-    --sidebar-text: 0 0% 100%;
-    --sidebar-muted-text: 0 0% 100% / 0.7;
+    --sidebar-text: 210 40% 98%;
+    --sidebar-muted-text: 210 40% 98% / 0.7;
     --sidebar-active-bg: 0 0% 100% / 0.1;
     --sidebar-hover-bg: 0 0% 100% / 0.05;
     --sidebar-border: 0 0% 100% / 0.1;
