@@ -559,7 +559,9 @@ const SidebarMenuButton = React.forwardRef<
     ref
   ) => {
     const { isMobile, state } = useSidebar();
-
+    
+    const Comp = asChild ? Slot : 'button';
+    
     const commonProps = {
       "data-sidebar": "menu-button",
       "data-size": size,
@@ -568,32 +570,18 @@ const SidebarMenuButton = React.forwardRef<
       ...props,
     };
 
-    const ButtonComponent = React.useCallback(
-      ({ children, ...rest }: { children: React.ReactNode }) => {
-        if (href) {
-          return (
-            <Link href={href} legacyBehavior passHref>
-              <a ref={ref as React.Ref<HTMLAnchorElement>} {...rest}>
-                {children}
-              </a>
-            </Link>
-          );
-        }
-        return (
-          <button ref={ref} {...rest}>
-            {children}
-          </button>
-        );
-      },
-      [href, ref]
+    const button = href ? (
+      <Link href={href} passHref>
+        <Comp ref={ref as React.Ref<any>} {...commonProps}>
+          {props.children}
+        </Comp>
+      </Link>
+    ) : (
+      <Comp ref={ref} {...commonProps}>
+        {props.children}
+      </Comp>
     );
     
-    const button = (
-        <ButtonComponent {...commonProps}>
-            {props.children}
-        </ButtonComponent>
-    );
-
     if (!tooltip) {
       return button;
     }
