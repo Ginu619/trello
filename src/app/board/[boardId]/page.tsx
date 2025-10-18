@@ -1,7 +1,8 @@
-import { Header } from "@/components/Header";
+
 import { BoardView } from "@/components/kanban/BoardView";
 import { getBoard } from "@/lib/data";
 import { notFound } from "next/navigation";
+import { Dashboard } from "@/components/Dashboard";
 
 interface BoardPageProps {
   params: {
@@ -17,11 +18,8 @@ export default async function BoardPage({ params }: BoardPageProps) {
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      <main className="flex-grow">
+    <Dashboard>
         <BoardView initialBoard={board} />
-      </main>
-    </div>
+    </Dashboard>
   );
 }

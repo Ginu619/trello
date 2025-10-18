@@ -1,11 +1,7 @@
-import { Header } from "@/components/Header";
+
+import { Dashboard } from "@/components/Dashboard";
 import type { ReactNode } from "react";
 
 export default function BoardsLayout({ children }: { children: ReactNode }) {
-  return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      <main className="flex-grow">{children}</main>
-    </div>
-  );
+  return <Dashboard>{children}</Dashboard>;
 }

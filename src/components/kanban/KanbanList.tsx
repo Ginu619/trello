@@ -3,7 +3,7 @@
 
 import type { Card, List } from "@/lib/types";
 import { KanbanCard } from "./KanbanCard";
-import { Plus, MoreHorizontal, ArrowRightLeft, Trash2, Edit } from "lucide-react";
+import { Plus, MoreHorizontal, Trash2, Edit } from "lucide-react";
 import { Button } from "../ui/button";
 import { useState, useRef, useEffect } from "react";
 import { Textarea } from "../ui/textarea";
@@ -227,7 +227,7 @@ export function KanbanList({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => onListDelete(list.id)}>
+            <AlertDialogAction onClick={() => onListDelete(list.id)} className="bg-destructive hover:bg-destructive/90">
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

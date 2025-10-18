@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(loggedInUser);
         localStorage.setItem("kanban-user", JSON.stringify(loggedInUser));
         toast({ title: "Login Successful", description: `Welcome back, ${loggedInUser.name}!` });
-        router.push("/boards");
+        router.push("/");
         setLoading(false);
       }, 500);
     },
@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(newUser);
         localStorage.setItem("kanban-user", JSON.stringify(newUser));
         toast({ title: "Signup Successful", description: `Welcome to TaskHive, ${name}!` });
-        router.push("/boards");
+        router.push("/");
         setLoading(false);
       }, 500);
     },

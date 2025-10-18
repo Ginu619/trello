@@ -13,11 +13,13 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { LayoutGrid, LogOut, User as UserIcon } from "lucide-react";
+import { LayoutGrid, LogOut, User as UserIcon, PanelLeft } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
+import { useSidebar } from "./ui/sidebar";
 
 export function Header() {
   const { user, loading, logout } = useAuth();
+  const { toggleSidebar, isMobile } = useSidebar();
 
   const getInitials = (name: string) => {
     return name
@@ -30,15 +32,25 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
-        <Link href="/" className="mr-6 flex items-center space-x-2">
-          <LayoutGrid className="h-6 w-6 text-primary" />
-          <span className="font-bold">TaskHive</span>
-        </Link>
-        <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-            <Link href="#" className="text-muted-foreground/80 hover:text-foreground">Features</Link>
-            <Link href="#" className="text-muted-foreground/80 hover:text-foreground">About Us</Link>
-            <Link href="#" className="text-muted-foreground/80 hover:text-foreground">Contact</Link>
-        </nav>
+        {user ? (
+            <button onClick={toggleSidebar} className="mr-4 md:hidden">
+              <PanelLeft />
+              <span className="sr-only">Toggle Sidebar</span>
+            </button>
+        ) : (
+          <Link href="/" className="mr-6 flex items-center space-x-2">
+            <LayoutGrid className="h-6 w-6 text-primary" />
+            <span className="font-bold">TaskHive</span>
+          </Link>
+        )}
+        
+        { !user && (
+            <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
+                <Link href="#" className="text-muted-foreground/80 hover:text-foreground">Features</Link>
+                <Link href="#" className="text-muted-foreground/80 hover:text-foreground">About Us</Link>
+                <Link href="#" className="text-muted-foreground/80 hover:text-foreground">Contact</Link>
+            </nav>
+        )}
         <div className="flex flex-1 items-center justify-end space-x-4">
           <nav className="flex items-center space-x-2">
             {loading ? (

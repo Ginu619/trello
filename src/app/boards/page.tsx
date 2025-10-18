@@ -71,7 +71,7 @@ export default function BoardsPage() {
   const boardImages = PlaceHolderImages.filter(p => p.id.startsWith('board-thumb'));
 
   return (
-    <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-foreground">Your Boards</h1>
       </div>
@@ -156,14 +156,14 @@ export default function BoardsPage() {
           <p className="mt-2 text-muted-foreground">Get started by creating your first board.</p>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
 
 function LoadingSkeleton() {
     return (
-      <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <>
         <div className="h-8 w-40 bg-muted/50 animate-pulse rounded-md mb-8" />
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {[...Array(5)].map((_, i) => (
@@ -174,7 +174,6 @@ function LoadingSkeleton() {
           ))}
             <div className="h-40 bg-muted/30 border-2 border-dashed border-border rounded-lg animate-pulse" />
         </div>
-      </div>
+      </>
     );
 }
-
