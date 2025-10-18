@@ -13,8 +13,9 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { LayoutGrid, LogOut, User as UserIcon } from "lucide-react";
+import { LayoutGrid, LogOut, User as UserIcon, Search } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
+import { Input } from "./ui/input";
 
 export function Header() {
   const { user, loading, logout } = useAuth();
@@ -28,18 +29,13 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
-        <Link href="/" className="mr-6 flex items-center space-x-2">
-          <LayoutGrid className="h-6 w-6 text-primary" />
-          <span className="font-bold">TaskHive</span>
-        </Link>
-        <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-            <Link href="#" className="text-muted-foreground/80 hover:text-foreground">Features</Link>
-            <Link href="#" className="text-muted-foreground/80 hover:text-foreground">About Us</Link>
-            <Link href="#" className="text-muted-foreground/80 hover:text-foreground">Contact</Link>
-        </nav>
-        <div className="flex flex-1 items-center justify-end space-x-4">
+        <div className="flex flex-1 items-center justify-between space-x-4">
+            <div className="relative w-full max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Search tasks, projects..." className="pl-9 bg-transparent" />
+            </div>
           <nav className="flex items-center space-x-2">
             {loading ? (
               <Skeleton className="h-10 w-24" />

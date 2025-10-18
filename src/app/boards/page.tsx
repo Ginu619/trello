@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardHeader,
 } from "@/components/ui/card";
 import {
   Dialog,
@@ -26,6 +25,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
+import { Header } from "@/components/Header";
+
 
 export default function BoardsPage() {
   const { user, loading: userLoading } = useAuth();
@@ -71,7 +72,9 @@ export default function BoardsPage() {
   const boardImages = PlaceHolderImages.filter(p => p.id.startsWith('board-thumb'));
 
   return (
-    <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <>
+    <Header />
+    <div className="flex-grow container mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-foreground">Your Boards</h1>
       </div>
@@ -157,6 +160,7 @@ export default function BoardsPage() {
         </div>
       )}
     </div>
+    </>
   );
 }
 
@@ -177,4 +181,3 @@ function LoadingSkeleton() {
       </div>
     );
 }
-
