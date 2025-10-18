@@ -1,6 +1,6 @@
 import { Header } from "@/components/Header";
 import { BoardView } from "@/components/kanban/BoardView";
-import { getBoard } from "@/lib/data";
+import { getBoard, getBoards } from "@/lib/data";
 import { notFound } from "next/navigation";
 
 interface BoardPageProps {
@@ -11,6 +11,7 @@ interface BoardPageProps {
 
 export default async function BoardPage({ params }: BoardPageProps) {
   const board = await getBoard(params.boardId);
+  const boards = await getBoards();
 
   if (!board) {
     notFound();
@@ -18,7 +19,7 @@ export default async function BoardPage({ params }: BoardPageProps) {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
+      <Header boards={boards} currentBoardId={params.boardId} />
       <main className="flex-grow">
         <BoardView initialBoard={board} />
       </main>

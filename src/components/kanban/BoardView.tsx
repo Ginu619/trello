@@ -223,9 +223,6 @@ export function BoardView({ initialBoard }: { initialBoard: Board }) {
 
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem)]" onDragEnd={handleDragEnd}>
-        <div className="p-4 bg-background/80 backdrop-blur-sm border-b">
-            <h1 className="text-2xl font-bold">{board.title}</h1>
-        </div>
       <div className="flex-grow p-4 overflow-x-auto">
         <div className="inline-flex items-start gap-4 h-full">
           {board.lists.map((list) => (
