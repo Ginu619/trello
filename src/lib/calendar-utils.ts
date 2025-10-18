@@ -22,7 +22,7 @@ export function generateWeeks(monthDate: Date): Date[][] {
   }
     
   // If a month has 6 weeks (like some Octobers), we need to show all 6
-  if (isSameMonth(weeks[5][0], monthDate)) {
+  if (weeks.length > 5 && isSameMonth(weeks[5][0], monthDate)) {
       // it's a 6 week month
   } else if (weeks.length > 5) {
       return weeks.slice(0, 5);
@@ -35,3 +35,4 @@ export function generateWeeks(monthDate: Date): Date[][] {
 function isSameMonth(date1: Date, date2: Date) {
     return date1.getFullYear() === date2.getFullYear() && date1.getMonth() === date2.getMonth();
 }
+
