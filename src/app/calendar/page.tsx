@@ -97,7 +97,7 @@ export default function CalendarPage() {
                         <div
                             className={cn(
                                 "relative flex items-center justify-center h-9 w-9",
-                                props.modifiers.today && "bg-accent rounded-md"
+                                props.modifiers?.today && "bg-accent rounded-md"
                             )}
                         >
                             <time dateTime={date.toISOString()}>{date.getDate()}</time>
