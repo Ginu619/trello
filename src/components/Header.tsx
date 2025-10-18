@@ -69,7 +69,7 @@ export function Header({ boards, currentBoardId }: { boards?: Board[], currentBo
                 </div>
 
                 {boards && currentBoardId && (
-                    <Select value={selectedBoard} onValuechange={handleBoardChange}>
+                    <Select value={selectedBoard} onValueChange={handleBoardChange}>
                         <SelectTrigger className="w-[180px] font-semibold text-lg h-9 border-0 bg-transparent shadow-none focus:ring-0">
                             <SelectValue placeholder="Select a board" />
                         </SelectTrigger>
