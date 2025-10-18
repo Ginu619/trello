@@ -53,21 +53,22 @@ const CustomToolbar = (toolbar: any) => {
   }
 
   return (
-    <div className="flex items-center justify-between mb-4 p-2 rounded-lg bg-card border">
+    <div className="flex flex-col sm:flex-row items-center justify-between mb-4 gap-4">
       <div className="flex items-center gap-2">
         <Button variant="outline" size="icon" onClick={goToBack}><ChevronLeft className="h-4 w-4" /></Button>
         <Button variant="outline" onClick={goToCurrent}>Today</Button>
         <Button variant="outline" size="icon" onClick={goToNext}><ChevronRight className="h-4 w-4" /></Button>
+         <h2 className="text-xl sm:text-2xl font-bold text-foreground ml-4">
+            {toolbar.label}
+        </h2>
       </div>
-      <h2 className="text-xl font-bold text-foreground">
-        {toolbar.label}
-      </h2>
       <div className="flex items-center gap-2">
         {(toolbar.views as (keyof typeof viewNames)[]).map(view => (
           <Button
             key={view}
             variant={toolbar.view === view ? 'default' : 'outline'}
             onClick={() => toolbar.onView(view)}
+            size="sm"
           >
             {viewNames[view]}
           </Button>
@@ -79,8 +80,8 @@ const CustomToolbar = (toolbar: any) => {
 
 const CustomEvent = ({ event }: EventProps<CalendarEvent>) => {
   const content = (
-      <div className={cn("p-1 h-full text-xs flex flex-col",
-        event.type === 'meeting' ? 'bg-blue-600/30 text-blue-100' : 'bg-green-600/30 text-green-100',
+      <div className={cn("p-1 h-full text-xs flex flex-col rounded-md",
+        event.type === 'meeting' ? 'bg-primary/20 text-primary-foreground/80 border border-primary/50' : 'bg-green-600/20 text-green-100 border border-green-600/50',
       )}>
         <strong className="truncate font-semibold">{event.title}</strong>
         {event.start && event.end && !event.allDay && (
@@ -123,7 +124,7 @@ export function FullCalendarView({ events, onSelectSlot, onSelectEvent }: FullCa
         }}
         eventPropGetter={(event) => ({
             className: cn(
-                '!rounded-md !border-0',
+                '!rounded-md !border-0 !p-0',
                 event.type === 'meeting' ? 'rbc-event-meeting' : 'rbc-event-task',
             ),
         })}

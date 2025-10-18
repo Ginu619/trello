@@ -104,7 +104,7 @@ body {
     @apply hidden;
   }
   .rbc-header {
-    @apply text-foreground font-semibold border-border;
+    @apply text-foreground/80 font-semibold border-border p-2 text-center text-sm;
   }
   .rbc-day-bg, .rbc-month-row {
     @apply border-border;
@@ -113,16 +113,28 @@ body {
     @apply bg-primary/10;
   }
   .rbc-event {
-    @apply p-0 rounded-md border-none;
+    @apply p-0 border-none bg-transparent;
   }
   .rbc-event-meeting {
-    @apply bg-blue-600/30 text-blue-100;
+     /* Handled in component */
   }
   .rbc-event-task {
-     @apply bg-green-600/30 text-green-100;
+     /* Handled in component */
   }
   .rbc-event:focus, .rbc-day-slot .rbc-background-event:focus {
     outline: none;
+  }
+  .rbc-month-view, .rbc-time-view, .rbc-agenda-view {
+    @apply border-border;
+  }
+  .rbc-time-header-content, .rbc-time-content {
+     @apply border-border;
+  }
+  .rbc-time-slot {
+      @apply text-foreground/60;
+  }
+  .rbc-current-time-indicator {
+    @apply bg-primary;
   }
 
 }
