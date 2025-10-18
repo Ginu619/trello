@@ -104,24 +104,6 @@ export function AppSidebar() {
       </nav>
 
       <div className="space-y-4">
-        {!isCollapsed && (
-          <div className="p-4 rounded-lg bg-sidebar-active-bg/80 text-center space-y-2">
-            <p className="text-sm font-semibold">Let&apos;s start!</p>
-            <p className="text-xs text-sidebar-muted-text">
-              Creating or adding new tasks couldn&apos;t be easier
-            </p>
-            <Button size="sm" className="w-full bg-sidebar-cta-bg text-sidebar-cta-text hover:bg-sidebar-cta-bg/90">
-              <Plus className="mr-2 h-4 w-4" />
-              Add New Task
-            </Button>
-          </div>
-        )}
-        {isCollapsed && (
-            <Button size="icon" className="rounded-full h-12 w-12 bg-sidebar-cta-bg text-sidebar-cta-text hover:bg-sidebar-cta-bg/90">
-                <Plus className="h-6 w-6"/>
-            </Button>
-        )}
-        
         <div className="border-t border-sidebar-border/50 my-2" />
 
         <Link href="/settings">
