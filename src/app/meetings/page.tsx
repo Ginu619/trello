@@ -138,7 +138,7 @@ export default function MeetingsPage() {
                 {pastMeetings.length > 0 && (
                     <section>
                         <h2 className="text-xl font-semibold mb-4">Past Meetings</h2>
-                         <div className="space-y-3">
+                         <div className="grid gap-4 md:grid-cols-2">
                             {pastMeetings.map(meeting => (
                                 <MeetingCard 
                                     key={meeting.id} 
@@ -186,9 +186,9 @@ function LoadingSkeleton() {
                 </section>
                 <section>
                     <Skeleton className="h-7 w-36 mb-4" />
-                    <div className="space-y-3">
+                    <div className="grid gap-4 md:grid-cols-2">
                          {[...Array(3)].map((_, i) => (
-                           <Skeleton key={i} className="h-16 rounded-lg" />
+                           <Skeleton key={i} className="h-20 rounded-lg" />
                         ))}
                     </div>
                 </section>

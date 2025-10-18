@@ -72,8 +72,8 @@ export function MeetingCard({ meeting, team, variant = 'default', onMeetingUpdat
                         <div className="bg-muted p-3 rounded-lg">
                             <Video className="h-6 w-6 text-muted-foreground" />
                         </div>
-                        <div>
-                            <p className="font-semibold">{meeting.title}</p>
+                        <div className="flex-1">
+                            <p className="font-semibold truncate">{meeting.title}</p>
                             <p className="text-sm text-muted-foreground">
                                 {format(new Date(meeting.startDate), 'MMM d, yyyy')}
                             </p>
