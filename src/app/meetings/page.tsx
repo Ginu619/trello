@@ -104,7 +104,7 @@ export default function MeetingsPage() {
                         </span>
                         Ongoing
                     </h2>
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
                         {ongoingMeetings.map(meeting => (
                             <MeetingCard 
                                 key={meeting.id} 
@@ -121,7 +121,7 @@ export default function MeetingsPage() {
                 {upcomingMeetings.length > 0 && (
                      <section>
                         <h2 className="text-xl font-semibold mb-4">Upcoming Meetings</h2>
-                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                        <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
                             {upcomingMeetings.map(meeting => (
                                 <MeetingCard 
                                     key={meeting.id} 
