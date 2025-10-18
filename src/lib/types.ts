@@ -98,8 +98,9 @@ export type Meeting = {
 export type CalendarEvent = {
   id: string;
   title: string;
-  date: Date;
+  start: Date;
+  end: Date;
+  allDay?: boolean;
   type: 'meeting' | 'task';
-  project?: string;
-  boardId?: string;
+  resource: Meeting | Card;
 };

@@ -97,10 +97,32 @@ body {
   body {
     @apply bg-background text-foreground;
   }
-  .calendar-grid {
-    grid-template-rows: auto 1fr;
+  .rbc-calendar {
+    @apply h-full;
   }
-  .calendar-grid .calendar-day-cell {
-    min-height: 8rem; /* Adjust as needed */
+  .rbc-toolbar {
+    @apply hidden;
   }
+  .rbc-header {
+    @apply text-foreground font-semibold border-border;
+  }
+  .rbc-day-bg, .rbc-month-row {
+    @apply border-border;
+  }
+  .rbc-today {
+    @apply bg-primary/10;
+  }
+  .rbc-event {
+    @apply p-0 rounded-md border-none;
+  }
+  .rbc-event-meeting {
+    @apply bg-blue-600/30 text-blue-100;
+  }
+  .rbc-event-task {
+     @apply bg-green-600/30 text-green-100;
+  }
+  .rbc-event:focus, .rbc-day-slot .rbc-background-event:focus {
+    outline: none;
+  }
+
 }

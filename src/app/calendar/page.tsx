@@ -2,86 +2,124 @@
 'use client';
 
 import { useAuth } from '@/hooks/useAuth';
-import { getMeetings, getTasksForUser } from '@/lib/data';
-import { CalendarEvent } from '@/lib/types';
-import { useEffect, useState } from 'react';
+import { getMeetings, getTasksForUser, createMeeting, updateMeeting } from '@/lib/data';
+import { CalendarEvent, Meeting } from '@/lib/types';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { addMonths, subMonths, format } from 'date-fns';
-import { CalendarView } from '@/components/calendar/CalendarView';
+import { FullCalendarView, CalendarViewType } from '@/components/calendar/FullCalendarView';
+import { ScheduleMeetingDialog } from '@/components/meetings/ScheduleMeetingDialog';
 
 export default function CalendarPage() {
   const { user, loading: userLoading } = useAuth();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentDate, setCurrentDate] = useState(new Date());
+
+  // State for the new meeting dialog
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogState, setDialogState] = useState<{ meeting?: Meeting, startDate?: Date, endDate?: Date }>({});
+
+  const fetchEvents = useCallback(async () => {
+    if (!user) return;
+    setLoading(true);
+    const [meetings, tasks] = await Promise.all([
+      getMeetings(),
+      getTasksForUser(user.id),
+    ]);
+
+    const meetingEvents: CalendarEvent[] = meetings
+      .map(meeting => ({
+        id: meeting.id,
+        title: meeting.title,
+        start: new Date(meeting.startDate),
+        end: new Date(meeting.endDate),
+        type: 'meeting',
+        resource: meeting,
+      }));
+
+    const taskEvents: CalendarEvent[] = tasks
+      .filter(task => task.dueDate)
+      .map(task => {
+        const dueDate = new Date(task.dueDate!);
+        return {
+          id: task.id,
+          title: task.title,
+          start: dueDate,
+          end: dueDate,
+          allDay: true,
+          type: 'task',
+          resource: task,
+        }
+      });
+    
+    setEvents([...meetingEvents, ...taskEvents]);
+    setLoading(false);
+  }, [user]);
 
   useEffect(() => {
     if (!userLoading && user) {
-      setLoading(true);
-      Promise.all([
-        getMeetings(),
-        getTasksForUser(user.id),
-      ]).then(([meetings, tasks]) => {
-        const meetingEvents: CalendarEvent[] = meetings
-          .filter(m => m.participants.includes(user.id))
-          .map(meeting => ({
-            id: meeting.id,
-            title: meeting.title,
-            date: new Date(meeting.startDate),
-            type: 'meeting',
-            project: meeting.project,
-          }));
-
-        const taskEvents: CalendarEvent[] = tasks
-          .filter(task => task.dueDate)
-          .map(task => ({
-            id: task.id,
-            title: task.title,
-            date: new Date(task.dueDate!),
-            type: 'task',
-            boardId: task.boardId,
-          }));
-        
-        setEvents([...meetingEvents, ...taskEvents]);
-        setLoading(false);
-      });
+      fetchEvents();
     }
-  }, [user, userLoading]);
+  }, [user, userLoading, fetchEvents]);
+  
+  const handleSelectSlot = useCallback(({ start, end }: { start: Date, end: Date }) => {
+    setDialogState({ startDate: start, endDate: end });
+    setDialogOpen(true);
+  }, []);
+
+  const handleSelectEvent = useCallback((event: CalendarEvent) => {
+    if (event.type === 'meeting') {
+      setDialogState({ meeting: event.resource as Meeting });
+      setDialogOpen(true);
+    }
+    // Clicking on tasks can be handled here if needed
+  }, []);
+
+  const handleMeetingScheduled = async (meetingData: Partial<Meeting>) => {
+    setDialogOpen(false);
+    if (dialogState.meeting) { // Editing existing meeting
+      await updateMeeting(dialogState.meeting.id, meetingData);
+    } else { // Creating new meeting
+      const newMeetingData = {
+        title: meetingData.title!,
+        description: meetingData.description || '',
+        startDate: meetingData.startDate!,
+        endDate: meetingData.endDate!,
+        participants: meetingData.participants || [],
+        meetingLink: meetingData.meetingLink || '',
+        project: meetingData.project,
+        recurrence: meetingData.recurrence || 'none',
+      }
+      // @ts-ignore
+      await createMeeting(newMeetingData);
+_    }
+    fetchEvents(); // Refetch events to show the new/updated one
+  };
+
 
   if (loading || userLoading) {
     return <LoadingSkeleton />;
   }
 
-  const handleNextMonth = () => {
-    setCurrentDate(current => addMonths(current, 1));
-  };
-
-  const handlePrevMonth = () => {
-    setCurrentDate(current => subMonths(current, 1));
-  };
-  
-  const handleToday = () => {
-    setCurrentDate(new Date());
-  }
-
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-4">
-            <h1 className="text-2xl font-bold">{format(currentDate, 'MMMM yyyy')}</h1>
-            <div className="flex items-center gap-2">
-                <Button variant="outline" size="icon" onClick={handlePrevMonth}><ChevronLeft className="h-4 w-4" /></Button>
-                <Button variant="outline" size="icon" onClick={handleNextMonth}><ChevronRight className="h-4 w-4" /></Button>
-            </div>
-            <Button variant="outline" onClick={handleToday}>Today</Button>
-        </div>
+    <>
+      <div className="flex flex-col h-full">
+        <FullCalendarView
+            events={events}
+            onSelectSlot={handleSelectSlot}
+            onSelectEvent={handleSelectEvent}
+        />
       </div>
-      <div className="flex-grow">
-        <CalendarView date={currentDate} events={events} />
-      </div>
-    </div>
+      <ScheduleMeetingDialog
+        isOpen={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onMeetingScheduled={handleMeetingScheduled}
+        meetingToEdit={dialogState.meeting}
+        defaultStartDate={dialogState.startDate}
+        defaultEndDate={dialogState.endDate}
+       >
+         <></>
+       </ScheduleMeetingDialog>
+    </>
   );
 }
 

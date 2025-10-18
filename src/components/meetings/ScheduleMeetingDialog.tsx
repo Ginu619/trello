@@ -28,10 +28,12 @@ import { Checkbox } from "../ui/checkbox";
 
 interface ScheduleMeetingDialogProps {
     children: ReactNode;
-    onMeetingScheduled: (newMeeting: Meeting) => void;
+    onMeetingScheduled: (meeting: Partial<Meeting>) => void;
     meetingToEdit?: Meeting;
     isOpen?: boolean;
     onOpenChange?: (isOpen: boolean) => void;
+    defaultStartDate?: Date;
+    defaultEndDate?: Date;
 }
 
 type Recurrence = 'none' | 'daily' | 'weekly' | 'monthly';
@@ -41,7 +43,9 @@ export function ScheduleMeetingDialog({
     onMeetingScheduled,
     meetingToEdit,
     isOpen: controlledIsOpen, 
-    onOpenChange: setControlledIsOpen 
+    onOpenChange: setControlledIsOpen,
+    defaultStartDate,
+    defaultEndDate,
 }: ScheduleMeetingDialogProps) {
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   const isOpen = controlledIsOpen ?? internalIsOpen;
@@ -69,31 +73,31 @@ export function ScheduleMeetingDialog({
       getTeamMembers().then(setTeam);
       getBoards().then(setBoards);
 
-      if (isEditMode) {
-          setTitle(meetingToEdit.title);
-          setDescription(meetingToEdit.description);
-          const startDate = parseISO(meetingToEdit.startDate);
+      const meeting = meetingToEdit;
+      if (isEditMode && meeting) {
+          setTitle(meeting.title);
+          setDescription(meeting.description);
+          const startDate = parseISO(meeting.startDate);
           setDate(startDate);
           setStartTime(format(startDate, 'HH:mm'));
-          setEndTime(format(parseISO(meetingToEdit.endDate), 'HH:mm'));
-          setParticipants(meetingToEdit.participants);
-          setMeetingLink(meetingToEdit.meetingLink);
-          setProject(meetingToEdit.project);
-          setRecurrence(meetingToEdit.recurrence || 'none');
+          setEndTime(format(parseISO(meeting.endDate), 'HH:mm'));
+          setParticipants(meeting.participants);
+          setMeetingLink(meeting.meetingLink);
+          setProject(meeting.project);
+          setRecurrence(meeting.recurrence || 'none');
       } else {
-          // Reset form for new meeting
           setTitle("");
           setDescription("");
-          setDate(undefined);
-          setStartTime("10:00");
-          setEndTime("11:00");
+          setDate(defaultStartDate);
+          setStartTime(defaultStartDate ? format(defaultStartDate, 'HH:mm') : "10:00");
+          setEndTime(defaultEndDate ? format(defaultEndDate, 'HH:mm') : "11:00");
           setParticipants([]);
           setMeetingLink("https://meet.google.com/");
           setProject(undefined);
           setRecurrence("none");
       }
     }
-  }, [isOpen, meetingToEdit, isEditMode]);
+  }, [isOpen, meetingToEdit, isEditMode, defaultStartDate, defaultEndDate]);
 
   const handleParticipantToggle = (participantId: string) => {
     setParticipants(prev => 
@@ -112,11 +116,11 @@ export function ScheduleMeetingDialog({
 
     const [startHours, startMinutes] = startTime.split(':').map(Number);
     const startDate = new Date(date);
-    startDate.setHours(startHours, startMinutes);
+    startDate.setHours(startHours, startMinutes, 0, 0);
 
     const [endHours, endMinutes] = endTime.split(':').map(Number);
     const endDate = new Date(date);
-    endDate.setHours(endHours, endMinutes);
+    endDate.setHours(endHours, endMinutes, 0, 0);
 
     const meetingData = {
         title,
@@ -128,25 +132,9 @@ export function ScheduleMeetingDialog({
         project,
         recurrence,
     };
-
-    try {
-        let resultMeeting;
-        if(isEditMode) {
-            resultMeeting = await updateMeeting(meetingToEdit.id, meetingData);
-            toast({ title: 'Meeting Updated!', description: `${title} has been updated.`});
-        } else {
-            resultMeeting = await createMeeting(meetingData);
-            toast({ title: 'Meeting Scheduled!', description: `${title} has been added to your calendar.`});
-        }
-        
-        onMeetingScheduled(resultMeeting);
-        setIsOpen(false);
-
-    } catch (error) {
-        toast({ variant: 'destructive', title: 'Something went wrong', description: 'Could not save the meeting.'})
-    } finally {
-        setIsSaving(false);
-    }
+    
+    onMeetingScheduled(meetingData);
+    setIsSaving(false);
   }
 
 
