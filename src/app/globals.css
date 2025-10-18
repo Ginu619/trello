@@ -102,10 +102,13 @@ body {
     @apply h-full;
   }
   .rbc-toolbar {
-    @apply hidden;
+    @apply flex items-center justify-between mb-3;
   }
   .rbc-header {
     @apply text-foreground/80 font-semibold border-border p-2 text-center text-sm;
+  }
+  .rbc-toolbar-label {
+    @apply text-xl font-bold;
   }
   .rbc-day-bg, .rbc-month-row {
     @apply border-border;
@@ -121,6 +124,15 @@ body {
   }
   .rbc-event-task {
      @apply bg-transparent border border-chart-2 text-foreground;
+  }
+  .rbc-agenda-view table.rbc-agenda-table {
+    @apply border-border;
+  }
+  .rbc-agenda-view .rbc-agenda-time-cell, .rbc-agenda-date-cell {
+    @apply text-foreground/80;
+  }
+  .rbc-event.rbc-selected, .rbc-slot-selection {
+    @apply bg-primary/20;
   }
   .rbc-event:focus, .rbc-day-slot .rbc-background-event:focus {
     outline: none;

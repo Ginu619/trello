@@ -2,6 +2,11 @@
 'use client';
 
 import { Calendar, dateFnsLocalizer, Views, EventProps, View, ToolbarProps } from 'react-big-calendar';
+// Drag & drop and resize addon
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore - types are bundled with the library in recent versions
+import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
+import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -28,11 +33,21 @@ export type CalendarViewType = View;
 
 interface FullCalendarViewProps {
   events: CalendarEvent[];
-  onSelectSlot: (slot: { start: Date; end: Date; }) => void;
+  onSelectSlot: (slot: { start: Date; end: Date }) => void;
   onSelectEvent: (event: CalendarEvent) => void;
+  onEventMove?: (args: { event: CalendarEvent; start: Date; end: Date; isAllDay?: boolean }) => void;
+  onEventResize?: (args: { event: CalendarEvent; start: Date; end: Date }) => void;
+  onCreate?: (ctx: { date: Date; view: View }) => void;
+  date?: Date;
+  view?: View;
+  onNavigate?: (newDate: Date, view: View, action: unknown) => void;
+  onView?: (view: View) => void;
+  onRangeChange?: (range: { start: Date; end: Date } | Date[], view: View) => void;
 }
 
-const CustomToolbar = (toolbar: ToolbarProps) => {
+type ToolbarWithCreate = ToolbarProps & { onCreate?: (ctx: { date: Date; view: View }) => void };
+
+const CustomToolbar = (toolbar: ToolbarWithCreate) => {
   const goToBack = () => {
     toolbar.onNavigate('PREV');
   };
@@ -64,18 +79,21 @@ const CustomToolbar = (toolbar: ToolbarProps) => {
             <Button variant="outline" size="icon" onClick={goToNext}><ChevronRight className="h-4 w-4" /></Button>
         </div>
       </div>
-      <div className="flex items-center gap-2 rounded-md bg-muted p-1">
-        {(toolbar.views as (keyof typeof viewNames)[]).map(view => (
-          <Button
-            key={view}
-            variant={toolbar.view === view ? 'default' : 'ghost'}
-            onClick={() => toolbar.onView(view)}
-            size="sm"
-            className="h-8 px-3"
-          >
-            {viewNames[view]}
-          </Button>
-        ))}
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 rounded-md bg-muted p-1">
+          {(toolbar.views as (keyof typeof viewNames)[]).map(view => (
+            <Button
+              key={view}
+              variant={toolbar.view === view ? 'default' : 'ghost'}
+              onClick={() => toolbar.onView(view)}
+              size="sm"
+              className="h-8 px-3"
+            >
+              {viewNames[view]}
+            </Button>
+          ))}
+        </div>
+        <Button onClick={() => toolbar.onCreate?.({ date: toolbar.date, view: toolbar.view })} className="ml-2">Create</Button>
       </div>
     </div>
   );
@@ -103,15 +121,17 @@ const CustomEvent = ({ event }: EventProps<CalendarEvent>) => {
 }
 
 
-export function FullCalendarView({ events, onSelectSlot, onSelectEvent }: FullCalendarViewProps) {
+export function FullCalendarView({ events, onSelectSlot, onSelectEvent, onEventMove, onEventResize, onCreate, date, view, onNavigate, onView, onRangeChange }: FullCalendarViewProps) {
   const { defaultDate, views } = useMemo(() => ({
     defaultDate: new Date(),
-    views: [Views.MONTH, Views.WEEK, Views.DAY],
+    views: [Views.MONTH, Views.WEEK, Views.DAY, Views.AGENDA],
   }), [])
+
+  const DnDCalendar = useMemo(() => withDragAndDrop(Calendar), []);
 
   return (
     <div className="h-[calc(100vh-10rem)] bg-card p-4 rounded-lg border text-foreground">
-      <Calendar
+      <DnDCalendar
         localizer={localizer}
         events={events}
         startAccessor="start"
@@ -121,10 +141,14 @@ export function FullCalendarView({ events, onSelectSlot, onSelectEvent }: FullCa
         onSelectSlot={onSelectSlot}
         onSelectEvent={onSelectEvent}
         defaultDate={defaultDate}
+        date={date}
         views={views}
         defaultView={Views.WEEK}
+        view={view}
         components={{
-          toolbar: CustomToolbar,
+          toolbar: (props: ToolbarProps) => (
+            <CustomToolbar {...props} onCreate={onCreate} />
+          ),
           event: CustomEvent,
         }}
         eventPropGetter={(event) => ({
@@ -132,6 +156,24 @@ export function FullCalendarView({ events, onSelectSlot, onSelectEvent }: FullCa
                 '!rounded-md !border-0 !p-0',
             ),
         })}
+        draggableAccessor={() => true}
+        resizable
+        onNavigate={onNavigate as any}
+        onView={onView as any}
+        onRangeChange={onRangeChange as any}
+        onEventDrop={(args: unknown) => {
+          const { event, start, end, isAllDay } = args as { event: CalendarEvent; start: Date; end: Date; isAllDay?: boolean };
+          // Forward to parent
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore - parent may omit handler
+          onEventMove?.({ event, start, end, isAllDay });
+        }}
+        onEventResize={(args: unknown) => {
+          const { event, start, end } = args as { event: CalendarEvent; start: Date; end: Date };
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore - parent may omit handler
+          onEventResize?.({ event, start, end });
+        }}
       />
     </div>
   );

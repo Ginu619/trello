@@ -20,7 +20,7 @@ import { CalendarIcon, Loader2, Users } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 import { ReactNode, useState, useEffect } from "react";
-import { getBoards, getTeamMembers } from "@/lib/data";
+import { getBoards, getTeamMembers, deleteMeeting } from "@/lib/data";
 import { Board, Meeting, User } from "@/lib/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { useToast } from "@/hooks/use-toast";
@@ -29,6 +29,7 @@ import { Checkbox } from "../ui/checkbox";
 interface ScheduleMeetingDialogProps {
     children: ReactNode;
     onMeetingScheduled: (meeting: Partial<Meeting>) => void;
+    onMeetingDeleted?: () => void;
     meetingToEdit?: Meeting;
     isOpen?: boolean;
     onOpenChange?: (isOpen: boolean) => void;
@@ -41,6 +42,7 @@ type Recurrence = 'none' | 'daily' | 'weekly' | 'monthly';
 export function ScheduleMeetingDialog({ 
     children, 
     onMeetingScheduled,
+    onMeetingDeleted,
     meetingToEdit,
     isOpen: controlledIsOpen, 
     onOpenChange: setControlledIsOpen,
@@ -64,6 +66,7 @@ export function ScheduleMeetingDialog({
   const [team, setTeam] = useState<User[]>([]);
   const [boards, setBoards] = useState<Board[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
 
   const isEditMode = !!meetingToEdit;
@@ -135,6 +138,15 @@ export function ScheduleMeetingDialog({
     
     onMeetingScheduled(meetingData);
     setIsSaving(false);
+  }
+
+  const handleDelete = async () => {
+    if (!isEditMode || !meetingToEdit) return;
+    setIsDeleting(true);
+    await deleteMeeting(meetingToEdit.id);
+    setIsDeleting(false);
+    setIsOpen(false);
+    onMeetingDeleted?.();
   }
 
 
@@ -255,7 +267,13 @@ export function ScheduleMeetingDialog({
              </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="flex items-center justify-between gap-2">
+          {isEditMode && (
+            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
+              {isDeleting && <Loader2 className="mr-2 animate-spin" />}
+              Delete
+            </Button>
+          )}
           <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
           <Button onClick={handleScheduleMeeting} disabled={isSaving}>
             {isSaving && <Loader2 className="mr-2 animate-spin" />}
