@@ -54,34 +54,37 @@ export function Header({ boards, currentBoardId }: { boards?: Board[], currentBo
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center">
-        <div className="flex flex-1 items-center justify-between space-x-4">
-            <div className="flex items-center gap-4">
-                <Link href="/boards">
-                    <Button variant="ghost" size="icon" title="Dashboard">
-                        <LayoutGrid />
-                    </Button>
-                </Link>
-                
-                <div className="relative w-full max-w-md">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Search tasks, projects..." className="pl-9 bg-transparent" />
-                </div>
+      <div className="container h-14 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 min-w-0">
+          <Link href="/boards">
+            <Button variant="ghost" size="icon" title="Dashboard">
+              <LayoutGrid />
+            </Button>
+          </Link>
+          {boards && currentBoardId && (
+            <Select value={selectedBoard} onValueChange={handleBoardChange}>
+              <SelectTrigger className="w-[180px] font-semibold text-base h-9 border-0 bg-transparent shadow-none focus:ring-0">
+                <SelectValue placeholder="Select a board" />
+              </SelectTrigger>
+              <SelectContent>
+                {boards.map((board) => (
+                  <SelectItem key={board.id} value={board.id}>
+                    {board.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
 
-                {boards && currentBoardId && (
-                    <Select value={selectedBoard} onValueChange={handleBoardChange}>
-                        <SelectTrigger className="w-[180px] font-semibold text-lg h-9 border-0 bg-transparent shadow-none focus:ring-0">
-                            <SelectValue placeholder="Select a board" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {boards.map(board => (
-                                <SelectItem key={board.id} value={board.id}>{board.title}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                )}
-            </div>
-          <nav className="flex items-center space-x-2">
+        <div className="hidden md:block flex-1 max-w-xl">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input placeholder="Search tasks, projects..." className="pl-9 bg-transparent" />
+          </div>
+        </div>
+
+        <nav className="flex items-center gap-2">
             {loading ? (
               <Skeleton className="h-10 w-10 rounded-full" />
             ) : user ? (
@@ -135,8 +138,7 @@ export function Header({ boards, currentBoardId }: { boards?: Board[], currentBo
                 </Button>
               </>
             )}
-          </nav>
-        </div>
+        </nav>
       </div>
     </header>
   );

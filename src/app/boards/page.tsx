@@ -72,11 +72,54 @@ export default function BoardsPage() {
   const boardImages = PlaceHolderImages.filter(p => p.id.startsWith('board-thumb'));
 
   return (
-    <>
+  <>
     <Header />
-    <div className="flex-grow container mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground">Your Boards</h1>
+    <div className="flex-grow container mx-auto py-6 px-4 sm:px-6 lg:px-8">
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Projects</h1>
+          <p className="text-muted-foreground text-sm">Browse and manage your project boards</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm">
+                <Plus className="mr-2 h-4 w-4" /> New Project
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Create a new project</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleCreateBoard}>
+                <div className="p-4 space-y-4">
+                  <Label htmlFor="board-title" className="sr-only">Project Name</Label>
+                  <Input
+                    id="board-title"
+                    value={newBoardTitle}
+                    onChange={(e) => setNewBoardTitle(e.target.value)}
+                    placeholder="e.g. Website Redesign"
+                    required
+                    className="text-base"
+                  />
+                </div>
+                <DialogFooter>
+                  <Button
+                    type="submit"
+                    disabled={isCreating || !newBoardTitle.trim()}
+                    className="w-full"
+                    size="lg"
+                  >
+                    {isCreating && (
+                      <Loader2 className="mr-2 animate-spin" />
+                    )}
+                    Create Project
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -84,7 +127,7 @@ export default function BoardsPage() {
             const image = boardImages[index % boardImages.length];
             return (
           <Link href={`/board/${board.id}`} key={board.id} className="group relative block">
-            <Card className="overflow-hidden transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1 bg-card/80 border-transparent rounded-lg">
+            <Card className="overflow-hidden transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-1 bg-card/80 border border-border/50 rounded-xl">
                 <div className="relative h-28 w-full">
                 {image && 
                     <Image
@@ -97,40 +140,38 @@ export default function BoardsPage() {
                 }
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 </div>
-              <CardContent className="p-4">
+              <CardContent className="p-4 flex items-center justify-between">
                  <h2 className="text-base font-bold text-primary-foreground truncate transition-colors">
                   {board.title}
                 </h2>
-              </CardContent>
-            </Card>
-             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-white hover:bg-white/20 hover:text-white">
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-primary-foreground/90 hover:bg-white/20 hover:text-white">
                   <Star className="h-4 w-4" />
                 </Button>
-            </div>
+              </CardContent>
+            </Card>
           </Link>
             )
         })}
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <button className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-border rounded-lg text-muted-foreground hover:bg-muted/30 hover:border-primary/50 transition-colors">
+            <button className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-border rounded-xl text-muted-foreground hover:bg-muted/30 hover:border-primary/50 transition-colors">
               <Plus className="h-8 w-8 mb-2" />
-              <span className="font-semibold">Create new board</span>
+              <span className="font-semibold">Create new project</span>
             </button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Create a new board</DialogTitle>
+              <DialogTitle>Create a new project</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleCreateBoard}>
               <div className="p-4 space-y-4">
-                <Label htmlFor="board-title" className="sr-only">Board Title</Label>
+                <Label htmlFor="board-title" className="sr-only">Project Name</Label>
                 <Input
                   id="board-title"
                   value={newBoardTitle}
                   onChange={(e) => setNewBoardTitle(e.target.value)}
-                  placeholder="e.g. Project Phoenix"
+                  placeholder="e.g. Website Redesign"
                   required
                   className="text-base"
                 />
@@ -145,7 +186,7 @@ export default function BoardsPage() {
                   {isCreating && (
                     <Loader2 className="mr-2 animate-spin" />
                   )}
-                  Create
+                  Create Project
                 </Button>
               </DialogFooter>
             </form>
@@ -155,8 +196,8 @@ export default function BoardsPage() {
 
       {boards.length === 0 && (
         <div className="text-center py-16 col-span-full">
-          <h2 className="text-xl font-semibold text-muted-foreground">No boards yet</h2>
-          <p className="mt-2 text-muted-foreground">Get started by creating your first board.</p>
+          <h2 className="text-xl font-semibold text-muted-foreground">No projects yet</h2>
+          <p className="mt-2 text-muted-foreground">Get started by creating your first project.</p>
         </div>
       )}
     </div>
