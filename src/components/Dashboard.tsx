@@ -65,7 +65,7 @@ export function Dashboard({ children }: { children?: ReactNode }) {
                         <SidebarMenuButton href="#" tooltip="Reports">
                             <FileText />
                             <span>Reports</span>
-                        </SidebarMenuButton>_
+                        </SidebarMenuButton>
                     </SidebarMenuItem>
                     </SidebarMenu>
                 </SidebarContent>

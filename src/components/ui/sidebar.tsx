@@ -218,7 +218,7 @@ const Sidebar = React.forwardRef<
     return (
       <div
         ref={ref}
-        className="group peer hidden md:block text-sidebar-foreground"
+        className="group hidden md:block text-sidebar-foreground"
         data-state={state}
         data-collapsible={state === "collapsed" ? collapsible : ""}
         data-variant={variant}
@@ -560,26 +560,36 @@ const SidebarMenuButton = React.forwardRef<
   ) => {
     const { isMobile, state } = useSidebar();
     
-    const Comp = asChild ? Slot : 'button';
+    const ButtonComponent = React.useCallback(
+      (buttonProps: any) => {
+        const { children, ...rest } = buttonProps;
+        const Comp = asChild ? Slot : "button";
+        if (href) {
+          return (
+            <Link href={href} legacyBehavior passHref>
+              <a ref={ref as React.Ref<HTMLAnchorElement>} {...rest}>
+                {children}
+              </a>
+            </Link>
+          );
+        }
+        return (
+          <Comp ref={ref} {...rest}>
+            {children}
+          </Comp>
+        );
+      },
+      [asChild, href, ref]
+    );
     
-    const commonProps = {
-      "data-sidebar": "menu-button",
-      "data-size": size,
-      "data-active": isActive,
-      className: cn(sidebarMenuButtonVariants({ variant, size }), className),
-      ...props,
-    };
-
-    const button = href ? (
-      <Link href={href} passHref>
-        <Comp ref={ref as React.Ref<any>} {...commonProps}>
-          {props.children}
-        </Comp>
-      </Link>
-    ) : (
-      <Comp ref={ref} {...commonProps}>
-        {props.children}
-      </Comp>
+    const button = (
+       <ButtonComponent
+        data-sidebar="menu-button"
+        data-size={size}
+        data-active={isActive}
+        className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
+        {...props}
+      />
     );
     
     if (!tooltip) {
