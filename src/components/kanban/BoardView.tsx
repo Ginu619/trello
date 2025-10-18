@@ -223,7 +223,7 @@ export function BoardView({ initialBoard }: { initialBoard: Board }) {
 
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem)]" onDragEnd={handleDragEnd}>
-      <div className="flex-grow p-4 overflow-x-auto">
+      <div className="flex-grow px-4 sm:px-6 lg:px-8 py-4 overflow-x-auto">
         <div className="inline-flex items-start gap-4 h-full">
           {board.lists.map((list) => (
             <KanbanList
