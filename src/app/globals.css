@@ -97,4 +97,10 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+  .calendar-grid {
+    grid-template-rows: auto 1fr;
+  }
+  .calendar-grid .calendar-day-cell {
+    min-height: 8rem; /* Adjust as needed */
+  }
 }

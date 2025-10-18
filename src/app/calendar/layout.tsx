@@ -9,7 +9,7 @@ export default function CalendarLayout({ children }: { children: ReactNode }) {
       <AppSidebar />
       <main className="flex-1 flex flex-col">
         <Header />
-        <div className="flex-grow p-4 md:p-8">
+        <div className="flex-grow p-4 md:p-6 flex flex-col">
             {children}
         </div>
       </main>
