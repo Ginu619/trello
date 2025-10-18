@@ -16,11 +16,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon, Loader2, RefreshCw, Users } from "lucide-react";
+import { CalendarIcon, Loader2, Users } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 import { ReactNode, useState, useEffect } from "react";
-import { createMeeting, getBoards, getTeamMembers, updateMeeting } from "@/lib/data";
+import { getBoards, getTeamMembers } from "@/lib/data";
 import { Board, Meeting, User } from "@/lib/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { useToast } from "@/hooks/use-toast";
@@ -76,7 +76,7 @@ export function ScheduleMeetingDialog({
       const meeting = meetingToEdit;
       if (isEditMode && meeting) {
           setTitle(meeting.title);
-          setDescription(meeting.description);
+          setDescription(meeting.description || '');
           const startDate = parseISO(meeting.startDate);
           setDate(startDate);
           setStartTime(format(startDate, 'HH:mm'));
@@ -88,7 +88,7 @@ export function ScheduleMeetingDialog({
       } else {
           setTitle("");
           setDescription("");
-          setDate(defaultStartDate);
+          setDate(defaultStartDate || new Date());
           setStartTime(defaultStartDate ? format(defaultStartDate, 'HH:mm') : "10:00");
           setEndTime(defaultEndDate ? format(defaultEndDate, 'HH:mm') : "11:00");
           setParticipants([]);

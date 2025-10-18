@@ -2,12 +2,13 @@
 'use client';
 
 import { useAuth } from '@/hooks/useAuth';
-import { getMeetings, getTasksForUser, createMeeting, updateMeeting } from '@/lib/data';
+import { getMeetings, getTasksForUser } from '@/lib/data';
 import { CalendarEvent, Meeting } from '@/lib/types';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { FullCalendarView, CalendarViewType } from '@/components/calendar/FullCalendarView';
+import { FullCalendarView } from '@/components/calendar/FullCalendarView';
 import { ScheduleMeetingDialog } from '@/components/meetings/ScheduleMeetingDialog';
+import { updateMeeting, createMeeting } from '@/lib/data';
 
 export default function CalendarPage() {
   const { user, loading: userLoading } = useAuth();
@@ -93,6 +94,7 @@ export default function CalendarPage() {
       await createMeeting(newMeetingData);
     }
     fetchEvents(); // Refetch events to show the new/updated one
+    setDialogState({}); // Clear dialog state
   };
 
 
@@ -111,7 +113,12 @@ export default function CalendarPage() {
       </div>
       <ScheduleMeetingDialog
         isOpen={dialogOpen}
-        onOpenChange={setDialogOpen}
+        onOpenChange={(isOpen) => {
+            setDialogOpen(isOpen);
+            if (!isOpen) {
+                setDialogState({});
+            }
+        }}
         onMeetingScheduled={handleMeetingScheduled}
         meetingToEdit={dialogState.meeting}
         defaultStartDate={dialogState.startDate}
@@ -125,7 +132,7 @@ export default function CalendarPage() {
 
 function LoadingSkeleton() {
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 p-4 md:p-6">
             <div className="flex items-center gap-4">
                 <Skeleton className="h-9 w-40" />
                 <div className="flex gap-2">
