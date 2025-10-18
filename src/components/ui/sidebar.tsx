@@ -326,7 +326,6 @@ const SidebarInset = React.forwardRef<
       ref={ref}
       className={cn(
         "relative flex min-h-svh flex-1 flex-col bg-background",
-        "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow",
         className
       )}
       {...props}
@@ -554,42 +553,33 @@ const SidebarMenuButton = React.forwardRef<
       tooltip,
       className,
       href,
+      children,
       ...props
     },
     ref
   ) => {
     const { isMobile, state } = useSidebar();
-    
-    const ButtonComponent = React.useCallback(
-      (buttonProps: any) => {
-        const { children, ...rest } = buttonProps;
-        const Comp = asChild ? Slot : "button";
-        if (href) {
-          return (
-            <Link href={href} legacyBehavior passHref>
-              <a ref={ref as React.Ref<HTMLAnchorElement>} {...rest}>
-                {children}
-              </a>
-            </Link>
-          );
-        }
-        return (
-          <Comp ref={ref} {...rest}>
+    const Comp = asChild ? Slot : 'button';
+
+    const buttonContent = (
+        <Comp
+          ref={ref as any}
+          data-sidebar="menu-button"
+          data-size={size}
+          data-active={isActive}
+          className={cn(sidebarMenuButtonVariants({ variant, size, className }))}
+          {...props}
+        >
             {children}
-          </Comp>
-        );
-      },
-      [asChild, href, ref]
+        </Comp>
     );
-    
-    const button = (
-       <ButtonComponent
-        data-sidebar="menu-button"
-        data-size={size}
-        data-active={isActive}
-        className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
-        {...props}
-      />
+
+    const button = href ? (
+        <Link href={href} passHref legacyBehavior>
+            {buttonContent}
+        </Link>
+    ) : (
+        buttonContent
     );
     
     if (!tooltip) {
