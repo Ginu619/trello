@@ -3,26 +3,32 @@
     {
       "id": "hero-image",
       "description": "A stylized Kanban board interface.",
-      "imageUrl": "https://picsum.photos/seed/kanban-hero/1200/800",
+      "imageUrl": "https://images.unsplash.com/photo-1620325867502-221cfb5faa5f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxwcm9qZWN0JTIwbWFuYWdlbWVudHxlbnwwfHx8fDE3NjA3MzMwNTh8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "project management"
     },
     {
       "id": "board-thumb-1",
       "description": "Thumbnail for a project board.",
-      "imageUrl": "https://picsum.photos/seed/board1/400/200",
+      "imageUrl": "https://images.unsplash.com/photo-1564951434112-64d74cc2a2d7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxhYnN0cmFjdCUyMHBhdHRlcm58ZW58MHx8fHwxNzYwNzMxNTIzfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "abstract pattern"
     },
     {
       "id": "board-thumb-2",
       "description": "Thumbnail for another project board.",
-      "imageUrl": "https://picsum.photos/seed/board2/400/200",
+      "imageUrl": "https://images.unsplash.com/photo-1756888203362-26fc2940e072?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8Y2l0eXNjYXBlJTIwbmlnaHR8ZW58MHx8fHwxNzYwNzMxNjMxfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "cityscape night"
     },
     {
       "id": "board-thumb-3",
       "description": "Thumbnail for a personal board.",
-      "imageUrl": "https://picsum.photos/seed/board3/400/200",
+      "imageUrl": "https://images.unsplash.com/photo-1507041957456-9c397ce39c97?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxuYXR1cmUlMjBmb3Jlc3R8ZW58MHx8fHwxNzYwNzMyODcwfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "nature forest"
+    },
+    {
+      "id": "login-image",
+      "description": "An illustration of people managing tasks around a giant clock.",
+      "imageUrl": "https://images.unsplash.com/photo-1531403009284-440f080d1e12?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHx0YXNrJTIwbWFuYWdlbWVudHxlbnwwfHx8fDE3NjA3NTQyNDJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "task management"
     }
   ]
 }
