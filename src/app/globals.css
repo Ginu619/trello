@@ -43,8 +43,8 @@ body {
     --chart-5: 340 75% 55%;
     --radius: 0.5rem;
 
-    --sidebar-bg-start: 15 25% 12%;
-    --sidebar-bg-end: 15 25% 12%;
+    --sidebar-bg-start: 15 25% 12% / 0.4;
+    --sidebar-bg-end: 15 25% 12% / 0.4;
     --sidebar-text: 20 20% 90%;
     --sidebar-muted-text: 20 20% 90% / 0.6;
     --sidebar-active-bg: 0 0% 100% / 0.1;

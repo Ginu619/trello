@@ -63,7 +63,7 @@ export function AppSidebar() {
 
   return (
     <aside className={cn(
-        "relative flex flex-col text-sidebar-text p-4 bg-gradient-to-b from-[hsl(var(--sidebar-bg-start))] to-[hsl(var(--sidebar-bg-end))] transition-all duration-300 ease-in-out",
+        "relative flex flex-col text-sidebar-text p-4 bg-gradient-to-b from-[hsl(var(--sidebar-bg-start))] to-[hsl(var(--sidebar-bg-end))] transition-all duration-300 ease-in-out backdrop-blur-lg",
         isCollapsed ? "w-20 items-center" : "w-64"
     )}>
       <div className={cn("flex items-center gap-3", isCollapsed && "justify-center")}>
