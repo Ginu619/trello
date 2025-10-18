@@ -1,4 +1,5 @@
 
+
 import type { Board, List, Card, User, Label, ChecklistItem, Comment, Activity, Attachment, Meeting, AgendaItem } from './types';
 
 const users: User[] = [
@@ -143,18 +144,18 @@ export async function createMeeting(meetingData: Omit<Meeting, 'id' | 'status'>)
 
 export async function updateMeeting(meetingId: string, updates: Partial<Omit<Meeting, 'id' | 'status'>>): Promise<Meeting> {
     await delay(100);
-    const meetingIndex = meetings.findIndex(m => m.id === meetingId);
+    let meetingIndex = meetings.findIndex(m => m.id === meetingId);
     if (meetingIndex === -1) throw new Error("Meeting not found");
     
     const originalMeeting = meetings[meetingIndex];
-    const updatedMeeting = { ...originalMeeting, ...updates };
+    const updatedMeetingData = { ...originalMeeting, ...updates };
 
     if(updates.startDate) {
-        updatedMeeting.status = new Date(updates.startDate) > new Date() ? 'upcoming' : 'ongoing';
+        updatedMeetingData.status = new Date(updates.startDate) > new Date() ? 'upcoming' : 'ongoing';
     }
 
-    meetings[meetingIndex] = updatedMeeting;
-    return JSON.parse(JSON.stringify(updatedMeeting));
+    meetings[meetingIndex] = updatedMeetingData;
+    return JSON.parse(JSON.stringify(updatedMeetingData));
 }
 
 export async function deleteMeeting(meetingId: string): Promise<void> {
@@ -287,4 +288,24 @@ export async function deleteCard(boardId: string, listId: string, cardId: string
     if (!list) throw new Error("List not found");
     
     list.cards = list.cards.filter(c => c.id !== cardId);
+}
+
+
+export async function getTasksForUser(userId: string): Promise<Card[]> {
+    await delay(100);
+    const userTasks: Card[] = [];
+    for (const board of boards) {
+        for (const list of board.lists) {
+            for (const card of list.cards) {
+                if (card.members?.includes(userId)) {
+                    userTasks.push({
+                        ...card,
+                        boardId: board.id,
+                        listId: list.id,
+                    });
+                }
+            }
+        }
+    }
+    return userTasks;
 }

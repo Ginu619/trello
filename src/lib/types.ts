@@ -26,6 +26,8 @@ export type Card = {
   comments?: Comment[];
   activities?: Activity[];
   cover?: CardCover;
+  boardId?: string; // Added to link card to its board
+  listId?: string; // Added to link card to its list
 };
 
 export type Label = {
@@ -92,3 +94,12 @@ export type Meeting = {
     agendaItems?: AgendaItem[];
     recurrence?: 'none' | 'daily' | 'weekly' | 'monthly';
 }
+
+export type CalendarEvent = {
+  id: string;
+  title: string;
+  date: Date;
+  type: 'meeting' | 'task';
+  project?: string;
+  boardId?: string;
+};
