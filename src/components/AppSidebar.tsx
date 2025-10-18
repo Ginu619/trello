@@ -33,7 +33,7 @@ const menuItems = [
   {
     label: "Projects",
     icon: Projector,
-    href: "/projects",
+    href: "/boards",
   },
   {
     label: "Meetings",
