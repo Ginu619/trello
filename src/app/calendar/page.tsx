@@ -240,19 +240,7 @@ export default function CalendarPage() {
     return <LoadingSkeleton />;
   }
 
-  const label = useMemo(() => {
-    if (currentView === Views.MONTH) return format(currentDate, "MMMM yyyy");
-    if (currentView === Views.AGENDA) return format(currentDate, "MMMM d, yyyy");
-    // Week/Day
-    if (currentView === Views.DAY) return format(currentDate, "EEEE, MMM d, yyyy");
-    const start = visibleRange.start;
-    const end = visibleRange.end;
-    const sameMonth = start.getMonth() === end.getMonth();
-    const sameYear = start.getFullYear() === end.getFullYear();
-    if (sameMonth && sameYear) return `${format(start, "MMM d")} – ${format(end, "d, yyyy")}`;
-    if (sameYear) return `${format(start, "MMM d")} – ${format(end, "MMM d, yyyy")}`;
-    return `${format(start, "MMM d, yyyy")} – ${format(end, "MMM d, yyyy")}`;
-  }, [currentDate, currentView, visibleRange]);
+  const label = formatRangeLabel(currentView, currentDate, visibleRange);
 
   return (
     <>
@@ -391,4 +379,17 @@ function LoadingSkeleton() {
       <Skeleton className="h-[70vh] w-full" />
     </div>
   );
+}
+
+function formatRangeLabel(view: CalendarViewType, currentDate: Date, visibleRange: { start: Date; end: Date }) {
+  if (view === Views.MONTH) return format(currentDate, "MMMM yyyy");
+  if (view === Views.AGENDA) return format(currentDate, "MMMM d, yyyy");
+  if (view === Views.DAY) return format(currentDate, "EEEE, MMM d, yyyy");
+  const start = visibleRange.start;
+  const end = visibleRange.end;
+  const sameMonth = start.getMonth() === end.getMonth();
+  const sameYear = start.getFullYear() === end.getFullYear();
+  if (sameMonth && sameYear) return `${format(start, "MMM d")} – ${format(end, "d, yyyy")}`;
+  if (sameYear) return `${format(start, "MMM d")} – ${format(end, "MMM d, yyyy")}`;
+  return `${format(start, "MMM d, yyyy")} – ${format(end, "MMM d, yyyy")}`;
 }
