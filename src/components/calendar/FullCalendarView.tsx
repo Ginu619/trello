@@ -86,7 +86,7 @@ export function FullCalendarView({
   const DnDCalendar = useMemo(() => withDragAndDrop(BaseCalendar as any), []);
 
   return (
-    <div className="h-[calc(100vh-10rem)] bg-card p-4 rounded-lg border text-foreground">
+    <div className="min-h-[480px] h-[70vh] md:h-[calc(100vh-12rem)] lg:h-[calc(100vh-10rem)] bg-card p-3 md:p-4 rounded-lg border text-foreground">
       <DnDCalendar
         localizer={localizer}
         events={events}

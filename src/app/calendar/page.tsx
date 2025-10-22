@@ -244,17 +244,17 @@ export default function CalendarPage() {
 
   return (
     <>
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
         {/* Left sidebar */}
-        <aside className="lg:col-span-3 space-y-6">
-          <div className="p-4 rounded-lg border bg-card">
+        <aside className="lg:col-span-3 space-y-4 md:space-y-6 order-2 lg:order-1">
+          <div className="p-3 md:p-4 rounded-lg border bg-card">
             <Input
               placeholder="Search events"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <div className="p-4 rounded-lg border bg-card">
+          <div className="p-3 md:p-4 rounded-lg border bg-card">
             <Calendar
               mode="single"
               selected={currentDate}
@@ -262,7 +262,7 @@ export default function CalendarPage() {
               initialFocus
             />
           </div>
-          <div className="p-4 rounded-lg border bg-card space-y-4">
+          <div className="p-3 md:p-4 rounded-lg border bg-card space-y-3 md:space-y-4">
             <div className="flex items-center justify-between">
               <Label htmlFor="showMeetings">Meetings</Label>
               <Switch id="showMeetings" checked={showMeetings} onCheckedChange={setShowMeetings} />
@@ -278,8 +278,8 @@ export default function CalendarPage() {
         </aside>
 
         {/* Main calendar */}
-        <section className="lg:col-span-9">
-          <div className="flex items-center justify-between mb-4">
+        <section className="lg:col-span-9 order-1 lg:order-2">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4 mb-3 md:mb-4">
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
@@ -296,16 +296,16 @@ export default function CalendarPage() {
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
-              <h2 className="ml-4 text-xl sm:text-2xl font-bold">{label}</h2>
+              <h2 className="ml-2 md:ml-4 text-lg sm:text-xl md:text-2xl font-bold truncate">{label}</h2>
             </div>
-            <div className="flex items-center gap-2 rounded-md bg-muted p-1">
+            <div className="flex items-center gap-1 md:gap-2 rounded-md bg-muted p-1 self-start">
               {[Views.MONTH, Views.WEEK, Views.DAY, Views.AGENDA].map((v) => (
                 <Button
                   key={v}
                   variant={currentView === v ? "default" : "ghost"}
                   onClick={() => setCurrentView(v)}
                   size="sm"
-                  className="h-8 px-3"
+                  className="h-8 px-2 md:px-3"
                 >
                   {v === Views.MONTH ? "Month" : v === Views.WEEK ? "Week" : v === Views.DAY ? "Day" : "Agenda"}
                 </Button>

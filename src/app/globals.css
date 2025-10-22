@@ -105,13 +105,19 @@ body {
     @apply hidden;
   }
   .rbc-header {
-    @apply text-foreground/80 font-semibold border-border p-2 text-center text-sm;
+    @apply text-foreground/80 font-semibold border-border p-1.5 md:p-2 text-center text-xs md:text-sm;
   }
   .rbc-day-bg, .rbc-month-row {
     @apply border-border;
   }
   .rbc-today {
-    background-color: hsl(var(--primary) / 0.1);
+    /* Subtle but clear highlight for today */
+    background-color: hsl(var(--primary) / 0.12);
+    position: relative;
+  }
+  .rbc-today .rbc-button-link {
+    @apply font-bold;
+    color: hsl(var(--primary));
   }
   .rbc-event {
     @apply p-0 border-none bg-transparent;
@@ -132,10 +138,24 @@ body {
      @apply border-border;
   }
   .rbc-time-slot {
-      @apply text-foreground/60;
+      @apply text-foreground/60 text-[10px] md:text-xs;
   }
   .rbc-current-time-indicator {
     @apply bg-primary;
+  }
+
+  /* Improve month cell paddings on small screens */
+  .rbc-month-view .rbc-month-row + .rbc-month-row {
+    @apply border-t border-border;
+  }
+  .rbc-month-view .rbc-date-cell {
+    @apply p-1 md:p-2 text-xs md:text-sm;
+  }
+  .rbc-time-view .rbc-time-header-cell .rbc-header {
+    @apply text-[10px] md:text-xs;
+  }
+  .rbc-time-view .rbc-time-gutter {
+    @apply text-[10px] md:text-xs;
   }
 
 }
