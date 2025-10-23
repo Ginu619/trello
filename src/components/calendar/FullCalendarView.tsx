@@ -1,13 +1,13 @@
 
 'use client';
 
-import { Calendar, dateFnsLocalizer, Views, EventProps, View, ToolbarProps } from 'react-big-calendar';
+import { Calendar as BaseCalendar, dateFnsLocalizer, Views, EventProps, View } from 'react-big-calendar';
+import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 import { CalendarEvent } from '@/lib/types';
-import { Button } from '../ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -28,58 +28,21 @@ export type CalendarViewType = View;
 
 interface FullCalendarViewProps {
   events: CalendarEvent[];
-  onSelectSlot: (slot: { start: Date; end: Date; }) => void;
+  onSelectSlot: (slot: { start: Date; end: Date }) => void;
   onSelectEvent: (event: CalendarEvent) => void;
+  // Drag & drop and resizing
+  onEventDrop?: (args: { event: CalendarEvent; start: Date; end: Date; allDay?: boolean }) => void;
+  onEventResize?: (args: { event: CalendarEvent; start: Date; end: Date }) => void;
+  // Controlled navigation/view
+  date?: Date;
+  view?: CalendarViewType;
+  onNavigate?: (newDate: Date) => void;
+  onView?: (view: CalendarViewType) => void;
+  onRangeChange?: (range: Date[] | { start: Date; end: Date }) => void;
 }
 
-const CustomToolbar = (toolbar: ToolbarProps) => {
-  const goToBack = () => {
-    toolbar.onNavigate('PREV');
-  };
-
-  const goToNext = () => {
-    toolbar.onNavigate('NEXT');
-  };
-
-  const goToCurrent = () => {
-    toolbar.onNavigate('TODAY');
-  };
-  
-  const viewNames: Record<string,string> = {
-    month: 'Month',
-    week: 'Week',
-    day: 'Day',
-    agenda: 'Agenda',
-  }
-
-  return (
-    <div className="flex flex-col sm:flex-row items-center justify-between mb-4 gap-4">
-      <div className="flex items-center gap-2">
-        <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-            {toolbar.label}
-        </h2>
-        <div className="flex items-center gap-1 ml-4">
-            <Button variant="outline" size="icon" onClick={goToBack}><ChevronLeft className="h-4 w-4" /></Button>
-            <Button variant="outline" onClick={goToCurrent}>Today</Button>
-            <Button variant="outline" size="icon" onClick={goToNext}><ChevronRight className="h-4 w-4" /></Button>
-        </div>
-      </div>
-      <div className="flex items-center gap-2 rounded-md bg-muted p-1">
-        {(toolbar.views as (keyof typeof viewNames)[]).map(view => (
-          <Button
-            key={view}
-            variant={toolbar.view === view ? 'default' : 'ghost'}
-            onClick={() => toolbar.onView(view)}
-            size="sm"
-            className="h-8 px-3"
-          >
-            {viewNames[view]}
-          </Button>
-        ))}
-      </div>
-    </div>
-  );
-};
+// We intentionally do not render a toolbar inside the calendar. The page
+// provides its own header and controls.
 
 const CustomEvent = ({ event }: EventProps<CalendarEvent>) => {
   const content = (
@@ -103,35 +66,56 @@ const CustomEvent = ({ event }: EventProps<CalendarEvent>) => {
 }
 
 
-export function FullCalendarView({ events, onSelectSlot, onSelectEvent }: FullCalendarViewProps) {
+export function FullCalendarView({
+  events,
+  onSelectSlot,
+  onSelectEvent,
+  onEventDrop,
+  onEventResize,
+  date,
+  view,
+  onNavigate,
+  onView,
+  onRangeChange,
+}: FullCalendarViewProps) {
   const { defaultDate, views } = useMemo(() => ({
     defaultDate: new Date(),
-    views: [Views.MONTH, Views.WEEK, Views.DAY],
+    views: [Views.MONTH, Views.WEEK, Views.DAY, Views.AGENDA],
   }), [])
 
+  const DnDCalendar = useMemo(() => withDragAndDrop(BaseCalendar as any), []);
+
   return (
-    <div className="h-[calc(100vh-10rem)] bg-card p-4 rounded-lg border text-foreground">
-      <Calendar
+    <div className="min-h-[480px] h-[70vh] md:h-[calc(100vh-12rem)] lg:h-[calc(100vh-10rem)] bg-card p-3 md:p-4 rounded-lg border text-foreground">
+      <DnDCalendar
         localizer={localizer}
         events={events}
         startAccessor="start"
         endAccessor="end"
         style={{ flex: 1 }}
         selectable
-        onSelectSlot={onSelectSlot}
-        onSelectEvent={onSelectEvent}
+        resizable
+        popup
+        longPressThreshold={250}
+        onSelectSlot={onSelectSlot as any}
+        onSelectEvent={onSelectEvent as any}
         defaultDate={defaultDate}
         views={views}
         defaultView={Views.WEEK}
         components={{
-          toolbar: CustomToolbar,
           event: CustomEvent,
         }}
         eventPropGetter={(event) => ({
-            className: cn(
-                '!rounded-md !border-0 !p-0',
-            ),
+          className: cn('!rounded-md !border-0 !p-0'),
         })}
+        // Controlled navigation/view (if provided)
+        date={date}
+        view={view}
+        onNavigate={onNavigate as any}
+        onView={onView as any}
+        onRangeChange={onRangeChange as any}
+        onEventDrop={onEventDrop as any}
+        onEventResize={onEventResize as any}
       />
     </div>
   );
