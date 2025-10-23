@@ -16,8 +16,7 @@ const labels: Label[] = [
     { id: 'label-5', text: 'Urgent', color: '#8B5CF6' }, // purple-500
 ];
 
-
-let boards: Board[] = [
+const initialBoards: Board[] = [
   {
     id: 'board-1',
     title: 'Project Phoenix',
@@ -121,6 +120,21 @@ let meetings: Meeting[] = [
     }
 ];
 
+const getBoardsFromStorage = (): Board[] => {
+    if (typeof window === 'undefined') return initialBoards;
+    const storedBoards = localStorage.getItem('kanban-boards');
+    if (storedBoards) {
+        return JSON.parse(storedBoards);
+    }
+    localStorage.setItem('kanban-boards', JSON.stringify(initialBoards));
+    return initialBoards;
+};
+
+const saveBoardsToStorage = (boards: Board[]) => {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem('kanban-boards', JSON.stringify(boards));
+};
+
 
 // Simulate API latency
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
@@ -176,11 +190,13 @@ export async function getAvailableLabels(): Promise<Label[]> {
 
 export async function getBoards(): Promise<Board[]> {
   await delay(100);
+  const boards = getBoardsFromStorage();
   return boards.map(({ id, title }) => ({ id, title, lists: [] }));
 }
 
 export async function getBoard(boardId: string): Promise<Board | undefined> {
   await delay(100);
+  const boards = getBoardsFromStorage();
   const board = boards.find(b => b.id === boardId);
   if (!board) {
     return undefined;
@@ -190,17 +206,20 @@ export async function getBoard(boardId: string): Promise<Board | undefined> {
 
 export async function updateBoard(boardId: string, updatedData: Partial<Board>): Promise<Board> {
     await delay(50);
+    const boards = getBoardsFromStorage();
     const boardIndex = boards.findIndex(b => b.id === boardId);
     if (boardIndex === -1) {
         throw new Error("Board not found");
     }
     const updatedBoard = { ...boards[boardIndex], ...updatedData };
     boards[boardIndex] = updatedBoard;
+    saveBoardsToStorage(boards);
     return JSON.parse(JSON.stringify(updatedBoard));
 }
 
-export async function createBoard(title: string): Promise<{ newBoard: Board, boards: Board[] }> {
+export async function createBoard(title: string): Promise<Board> {
   await delay(100);
+  const boards = getBoardsFromStorage();
   const newBoard: Board = {
     id: `board-${Date.now()}`,
     title,
@@ -210,12 +229,14 @@ export async function createBoard(title: string): Promise<{ newBoard: Board, boa
       { id: `list-${Date.now()}-3`, title: 'Done', cards: [] },
     ],
   };
-  boards.push(newBoard);
-  return { newBoard, boards: [...boards] };
+  const updatedBoards = [...boards, newBoard];
+  saveBoardsToStorage(updatedBoards);
+  return newBoard;
 }
 
 export async function addList(boardId: string, title: string): Promise<List> {
     await delay(100);
+    const boards = getBoardsFromStorage();
     const board = boards.find(b => b.id === boardId);
     if (!board) throw new Error("Board not found");
     
@@ -225,29 +246,35 @@ export async function addList(boardId: string, title: string): Promise<List> {
         cards: []
     };
     board.lists.push(newList);
+    saveBoardsToStorage(boards);
     return newList;
 }
 
 export async function updateList(boardId: string, listId: string, updates: Partial<List>): Promise<List> {
     await delay(50);
+    const boards = getBoardsFromStorage();
     const board = boards.find(b => b.id === boardId);
     if (!board) throw new Error("Board not found");
     const list = board.lists.find(l => l.id === listId);
     if (!list) throw new Error("List not found");
     
     Object.assign(list, updates);
+    saveBoardsToStorage(boards);
     return JSON.parse(JSON.stringify(list));
 }
 
 export async function deleteList(boardId: string, listId: string): Promise<void> {
     await delay(50);
+    const boards = getBoardsFromStorage();
     const board = boards.find(b => b.id === boardId);
     if (!board) throw new Error("Board not found");
     board.lists = board.lists.filter(l => l.id !== listId);
+    saveBoardsToStorage(boards);
 }
 
 export async function addCard(boardId: string, listId: string, title: string): Promise<Card> {
     await delay(50);
+    const boards = getBoardsFromStorage();
     const board = boards.find(b => b.id === boardId);
     if (!board) throw new Error("Board not found");
 
@@ -260,11 +287,13 @@ export async function addCard(boardId: string, listId: string, title: string): P
         order: list.cards.length
     };
     list.cards.push(newCard);
+    saveBoardsToStorage(boards);
     return newCard;
 }
 
 export async function updateCard(boardId: string, cardId: string, updates: Partial<Card>): Promise<Card> {
     await delay(50);
+    const boards = getBoardsFromStorage();
     const board = boards.find(b => b.id === boardId);
     if (!board) throw new Error("Board not found");
 
@@ -277,6 +306,7 @@ export async function updateCard(boardId: string, cardId: string, updates: Parti
             } else {
                 list.cards[cardIndex] = { ...list.cards[cardIndex], ...updates };
             }
+            saveBoardsToStorage(boards);
             return JSON.parse(JSON.stringify(list.cards[cardIndex]));
         }
     }
@@ -285,6 +315,7 @@ export async function updateCard(boardId: string, cardId: string, updates: Parti
 
 export async function deleteCard(boardId: string, listId: string, cardId: string): Promise<void> {
     await delay(50);
+    const boards = getBoardsFromStorage();
     const board = boards.find(b => b.id === boardId);
     if (!board) throw new Error("Board not found");
 
@@ -292,11 +323,13 @@ export async function deleteCard(boardId: string, listId: string, cardId: string
     if (!list) throw new Error("List not found");
     
     list.cards = list.cards.filter(c => c.id !== cardId);
+    saveBoardsToStorage(boards);
 }
 
 
 export async function getTasksForUser(userId: string): Promise<Card[]> {
     await delay(100);
+    const boards = getBoardsFromStorage();
     const userTasks: Card[] = [];
     for (const board of boards) {
         for (const list of board.lists) {

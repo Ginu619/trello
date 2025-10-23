@@ -37,14 +37,15 @@ export default function BoardsPage() {
   const [isCreating, setIsCreating] = useState(false);
   const router = useRouter();
 
+  const fetchBoards = async () => {
+    setLoadingBoards(true);
+    const userBoards = await getBoards();
+    setBoards(userBoards);
+    setLoadingBoards(false);
+  };
+
   useEffect(() => {
     if (!userLoading && user) {
-      const fetchBoards = async () => {
-        setLoadingBoards(true);
-        const userBoards = await getBoards();
-        setBoards(userBoards);
-        setLoadingBoards(false);
-      };
       fetchBoards();
     }
   }, [user, userLoading]);
@@ -54,8 +55,8 @@ export default function BoardsPage() {
     if (!newBoardTitle.trim()) return;
     setIsCreating(true);
     try {
-      const { newBoard, boards: updatedBoards } = await createBoard(newBoardTitle);
-      setBoards(updatedBoards); // Update state with all boards
+      const newBoard = await createBoard(newBoardTitle);
+      await fetchBoards(); // Re-fetch all boards to update the state
       router.push(`/board/${newBoard.id}`);
     } catch (error) {
       console.error("Failed to create board", error);
