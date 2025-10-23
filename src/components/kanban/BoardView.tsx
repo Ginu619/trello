@@ -136,7 +136,7 @@ export function BoardView({ initialBoard }: { initialBoard: Board }) {
 
   const handleAddNewCard = async (listId: string, title: string) => {
     const optimisticCard: Card = {
-        id: `temp-card-${Date.now()}-${Math.random()}`,
+        id: `temp-card-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         title,
         order: board.lists.find(l => l.id === listId)?.cards.length || 0,
     };
