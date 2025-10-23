@@ -341,4 +341,3 @@ export async function getTasksForUser(userId: string): Promise<Card[]> {
     }
     return userTasks;
 }
-
