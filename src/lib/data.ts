@@ -220,13 +220,18 @@ export async function updateBoard(boardId: string, updatedData: Partial<Board>):
 export async function createBoard(title: string): Promise<Board> {
   await delay(100);
   const boards = getBoardsFromStorage();
+  
+  const boardIds = boards.map(b => parseInt(b.id.split('-')[1], 10)).filter(id => !isNaN(id));
+  const maxId = boardIds.length > 0 ? Math.max(...boardIds) : 0;
+  const newId = maxId + 1;
+
   const newBoard: Board = {
-    id: `board-${Date.now()}`,
+    id: `board-${newId}`,
     title,
     lists: [
-      { id: `list-${Date.now()}-1`, title: 'To Do', cards: [] },
-      { id: `list-${Date.now()}-2`, title: 'In Progress', cards: [] },
-      { id: `list-${Date.now()}-3`, title: 'Done', cards: [] },
+      { id: `list-${newId}-1`, title: 'To Do', cards: [] },
+      { id: `list-${newId}-2`, title: 'In Progress', cards: [] },
+      { id: `list-${newId}-3`, title: 'Done', cards: [] },
     ],
   };
   const updatedBoards = [...boards, newBoard];
