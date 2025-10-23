@@ -199,7 +199,7 @@ export async function updateBoard(boardId: string, updatedData: Partial<Board>):
     return JSON.parse(JSON.stringify(updatedBoard));
 }
 
-export async function createBoard(title: string): Promise<Board> {
+export async function createBoard(title: string): Promise<{ newBoard: Board, boards: Board[] }> {
   await delay(100);
   const newBoard: Board = {
     id: `board-${Date.now()}`,
@@ -211,7 +211,7 @@ export async function createBoard(title: string): Promise<Board> {
     ],
   };
   boards.push(newBoard);
-  return newBoard;
+  return { newBoard, boards: [...boards] };
 }
 
 export async function addList(boardId: string, title: string): Promise<List> {

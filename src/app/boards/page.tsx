@@ -54,7 +54,8 @@ export default function BoardsPage() {
     if (!newBoardTitle.trim()) return;
     setIsCreating(true);
     try {
-      const newBoard = await createBoard(newBoardTitle);
+      const { newBoard, boards: updatedBoards } = await createBoard(newBoardTitle);
+      setBoards(updatedBoards); // Update state with all boards
       router.push(`/board/${newBoard.id}`);
     } catch (error) {
       console.error("Failed to create board", error);
