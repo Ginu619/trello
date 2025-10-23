@@ -135,44 +135,19 @@ export function BoardView({ initialBoard }: { initialBoard: Board }) {
   };
 
   const handleAddNewCard = async (listId: string, title: string) => {
-    const optimisticCard: Card = {
-        id: `temp-card-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        title,
-        order: board.lists.find(l => l.id === listId)?.cards.length || 0,
-    };
-
-    setBoard(b => {
-        const newBoard = { ...b };
-        const list = newBoard.lists.find(l => l.id === listId);
-        if (list) {
-            list.cards.push(optimisticCard);
-        }
-        return newBoard;
-    });
-
     try {
         const newCard = await addCard(board.id, listId, title);
         setBoard(b => {
             const newBoard = JSON.parse(JSON.stringify(b));
             const list = newBoard.lists.find((l: List) => l.id === listId);
             if (list) {
-                const cardIndex = list.cards.findIndex((c: Card) => c.id === optimisticCard.id);
-                if (cardIndex !== -1) {
-                    list.cards[cardIndex] = newCard;
-                }
+                list.cards.push(newCard);
             }
             return newBoard;
         });
     } catch(error) {
         console.error("Failed to add card", error);
-        setBoard(b => {
-            const newBoard = JSON.parse(JSON.stringify(b));
-            const list = newBoard.lists.find((l: List) => l.id === listId);
-            if (list) {
-                list.cards = list.cards.filter((c: Card) => c.id !== optimisticCard.id);
-            }
-            return newBoard;
-        });
+        // Optional: Show an error toast to the user
     }
   }
 
