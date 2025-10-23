@@ -6,16 +6,13 @@ import { BoardView } from "@/components/kanban/BoardView";
 import { getBoard, getBoards } from "@/lib/data";
 import { Board } from "@/lib/types";
 import { Loader2 } from "lucide-react";
-import { notFound } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-interface BoardPageProps {
-  params: {
-    boardId: string;
-  };
-}
+export default function BoardPage() {
+  const params = useParams();
+  const boardId = params.boardId as string;
 
-export default function BoardPage({ params }: BoardPageProps) {
   const [board, setBoard] = useState<Board | null>(null);
   const [boards, setBoards] = useState<Board[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,7 +21,7 @@ export default function BoardPage({ params }: BoardPageProps) {
     const fetchData = async () => {
       setLoading(true);
       const [boardData, boardsData] = await Promise.all([
-        getBoard(params.boardId),
+        getBoard(boardId),
         getBoards(),
       ]);
 
@@ -37,8 +34,10 @@ export default function BoardPage({ params }: BoardPageProps) {
       setLoading(false);
     };
 
-    fetchData();
-  }, [params.boardId]);
+    if (boardId) {
+      fetchData();
+    }
+  }, [boardId]);
 
 
   if (loading) {
@@ -59,7 +58,7 @@ export default function BoardPage({ params }: BoardPageProps) {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header boards={boards} currentBoardId={params.boardId} />
+      <Header boards={boards} currentBoardId={boardId} />
       <main className="flex-grow">
         <BoardView initialBoard={board} />
       </main>
