@@ -181,7 +181,11 @@ export async function getBoards(): Promise<Board[]> {
 
 export async function getBoard(boardId: string): Promise<Board | undefined> {
   await delay(100);
-  return JSON.parse(JSON.stringify(boards.find(b => b.id === boardId)));
+  const board = boards.find(b => b.id === boardId);
+  if (!board) {
+    return undefined;
+  }
+  return JSON.parse(JSON.stringify(board));
 }
 
 export async function updateBoard(boardId: string, updatedData: Partial<Board>): Promise<Board> {
