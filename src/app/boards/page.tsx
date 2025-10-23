@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -56,7 +57,7 @@ export default function BoardsPage() {
     setIsCreating(true);
     try {
       const newBoard = await createBoard(newBoardTitle);
-      await fetchBoards(); // Re-fetch all boards to update the state
+      // No need to re-fetch, router push will load the new board
       router.push(`/board/${newBoard.id}`);
     } catch (error) {
       console.error("Failed to create board", error);
