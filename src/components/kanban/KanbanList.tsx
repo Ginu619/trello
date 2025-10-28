@@ -173,6 +173,7 @@ export function KanbanList({
               <KanbanCard
                 key={card.id}
                 card={card}
+                boardId={boardId}
                 listId={list.id}
                 listTitle={list.title}
                 isDragged={card.id === draggedCardId}

@@ -33,6 +33,7 @@ import Image from "next/image";
 
 interface CardDetailsDialogProps {
   card: Card;
+  boardId: string;
   listTitle: string;
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
@@ -41,6 +42,7 @@ interface CardDetailsDialogProps {
 
 export function CardDetailsDialog({
   card: initialCard,
+  boardId,
   listTitle,
   isOpen,
   onOpenChange,
@@ -79,14 +81,14 @@ export function CardDetailsDialog({
   const handleUpdateCard = useCallback(async (updates: Partial<Card> | { cover: null }) => {
     try {
         // @ts-ignore
-        const updatedCard = await updateCard("board-1", card.id, updates);
+        const updatedCard = await updateCard(boardId, card.id, updates);
         setCard(updatedCard);
         onCardUpdate(updatedCard);
         return updatedCard;
     } catch (error) {
         toast({ title: "Error", description: "Failed to update card.", variant: "destructive" });
     }
-  }, [card.id, onCardUpdate, toast]);
+  }, [boardId, card.id, onCardUpdate, toast]);
 
 
   const handleDescriptionSave = async () => {
@@ -585,7 +587,7 @@ function CoverPopover({ card, onUpdate }: { card: Card; onUpdate: (updates: Part
                                 </div>
                              </button>
                              <button className={cn("rounded-md border-2 p-1", card.cover?.size === 'full' ? "border-primary" : "border-transparent")} onClick={() => setCover({ ...card.cover, type: card.cover?.type || 'color', value: card.cover?.value || '#6B7280', size: 'full' })}>
-                                <div className={cn("h-12 w-full rounded", card.cover?.type === 'image' ? 'bg-muted-foreground' : 'bg-primary')} />
+                                <div className={cn("h-12 w-full rounded", card.cover?.type === 'image' ? 'bg-muted-foreground' : 'bg_primary')} />
                              </button>
                         </div>
                         {card.cover && <Button size="sm" variant="outline" className="w-full mt-2" onClick={removeCover}>Remove cover</Button>}
@@ -626,5 +628,3 @@ function CoverPopover({ card, onUpdate }: { card: Card; onUpdate: (updates: Part
         </Popover>
     )
 }
-
-    

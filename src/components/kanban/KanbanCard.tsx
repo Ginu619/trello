@@ -14,6 +14,7 @@ import Image from 'next/image';
 
 interface KanbanCardProps {
   card: Card;
+  boardId: string;
   listId: string;
   listTitle: string;
   isDragged: boolean;
@@ -25,6 +26,7 @@ interface KanbanCardProps {
 
 export function KanbanCard({
   card,
+  boardId,
   listId,
   listTitle,
   isDragged,
@@ -149,6 +151,7 @@ export function KanbanCard({
       </div>
       <CardDetailsDialog
         card={card}
+        boardId={boardId}
         listTitle={listTitle}
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
