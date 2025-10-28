@@ -38,6 +38,7 @@ interface KanbanListProps {
   onCardUpdate: (updatedCard: Card) => void;
   onListUpdate: (listId: string, updates: Partial<List>) => void;
   onListDelete: (listId: string) => void;
+  onCardDelete: (listId: string, cardId: string) => void;
   draggedCardId?: string | null;
   isListDragged: boolean;
 }
@@ -54,6 +55,7 @@ export function KanbanList({
   onCardUpdate,
   onListUpdate,
   onListDelete,
+  onCardDelete,
   draggedCardId,
   isListDragged,
 }: KanbanListProps) {
@@ -181,6 +183,7 @@ export function KanbanList({
                 onDragEnd={onDragEnd}
                 onDragEnter={onCardDragEnter}
                 onCardUpdate={onCardUpdate}
+                onCardDelete={onCardDelete}
               />
             ))}
 

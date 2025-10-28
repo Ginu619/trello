@@ -11,6 +11,16 @@ import { Clock, CheckSquare, Edit, Trash2 } from "lucide-react";
 import { format } from 'date-fns';
 import { Button } from "../ui/button";
 import Image from 'next/image';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+  } from "@/components/ui/alert-dialog";
 
 interface KanbanCardProps {
   card: Card;
@@ -22,6 +32,7 @@ interface KanbanCardProps {
   onDragEnd: () => void;
   onDragEnter: (listId: string, cardId: string) => void;
   onCardUpdate: (updatedCard: Card) => void;
+  onCardDelete: (listId: string, cardId: string) => void;
 }
 
 export function KanbanCard({
@@ -34,9 +45,11 @@ export function KanbanCard({
   onDragEnd,
   onDragEnter,
   onCardUpdate,
+  onCardDelete,
 }: KanbanCardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
     e.dataTransfer.effectAllowed = "move";
@@ -66,6 +79,11 @@ export function KanbanCard({
   const totalChecklistItems = card.checklist?.length || 0;
 
   const openDialog = () => setIsDialogOpen(true);
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsDeleteDialogOpen(true);
+  };
 
   const hasCover = !!card.cover;
   const isFullCover = hasCover && card.cover?.size === 'full';
@@ -144,7 +162,7 @@ export function KanbanCard({
             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={openDialog}>
                 <Edit className="h-4 w-4" />
             </Button>
-             <Button variant="ghost" size="icon" className="h-7 w-7">
+             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleDeleteClick}>
                 <Trash2 className="h-4 w-4" />
             </Button>
         </div>
@@ -157,6 +175,27 @@ export function KanbanCard({
         onOpenChange={setIsDialogOpen}
         onCardUpdate={onCardUpdate}
       />
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the card "{card.title}".
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                onCardDelete(listId, card.id);
+                setIsDeleteDialogOpen(false);
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

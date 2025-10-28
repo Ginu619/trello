@@ -1,7 +1,7 @@
 
 "use client";
 
-import { addList, updateBoard, addCard, updateList, deleteList as deleteListFromDB } from "@/lib/data";
+import { addList, updateBoard, addCard, updateList, deleteList as deleteListFromDB, deleteCard as deleteCardFromDB } from "@/lib/data";
 import type { Board, Card, List } from "@/lib/types";
 import { useCallback, useEffect, useState } from "react";
 import { KanbanList } from "./KanbanList";
@@ -135,20 +135,15 @@ export function BoardView({ initialBoard }: { initialBoard: Board }) {
   };
 
   const handleAddNewCard = async (listId: string, title: string) => {
-    try {
-        const newCard = await addCard(board.id, listId, title);
-        setBoard(b => {
-            const newBoard = JSON.parse(JSON.stringify(b));
-            const list = newBoard.lists.find((l: List) => l.id === listId);
-            if (list) {
-                list.cards.push(newCard);
-            }
-            return newBoard;
-        });
-    } catch(error) {
-        console.error("Failed to add card", error);
-        // Optional: Show an error toast to the user
-    }
+    const newCard = await addCard(board.id, listId, title);
+    setBoard(b => {
+        const newBoard = JSON.parse(JSON.stringify(b));
+        const list = newBoard.lists.find((l: List) => l.id === listId);
+        if (list) {
+            list.cards.push(newCard);
+        }
+        return newBoard;
+    });
   }
 
   const handleCardUpdate = (updatedCard: Card) => {
@@ -195,6 +190,25 @@ export function BoardView({ initialBoard }: { initialBoard: Board }) {
     }
   };
 
+  const handleCardDelete = async (listId: string, cardId: string) => {
+    const originalBoard = JSON.parse(JSON.stringify(board));
+    setBoard(b => {
+      const newBoard = JSON.parse(JSON.stringify(b));
+      const list = newBoard.lists.find((l: List) => l.id === listId);
+      if (list) {
+        list.cards = list.cards.filter((c: Card) => c.id !== cardId);
+      }
+      return newBoard;
+    });
+
+    try {
+      await deleteCardFromDB(board.id, listId, cardId);
+    } catch (error) {
+      console.error("Failed to delete card", error);
+      setBoard(originalBoard);
+    }
+  };
+
 
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem)]" onDragEnd={handleDragEnd}>
@@ -214,6 +228,7 @@ export function BoardView({ initialBoard }: { initialBoard: Board }) {
               onCardUpdate={handleCardUpdate}
               onListUpdate={handleListUpdate}
               onListDelete={handleListDelete}
+              onCardDelete={handleCardDelete}
               draggedCardId={cardDragState?.cardId}
               isListDragged={draggedListId === list.id}
             />
