@@ -138,9 +138,7 @@ export function Header({ boards, currentBoardId }: { boards?: Board[], currentBo
                       </DropdownMenuContent>
                     </DropdownMenu>
 
-                    <EditBoardDialog board={currentBoard} onBoardUpdate={handleBoardUpdate} isOpen={isEditOpen} onOpenChange={setIsEditOpen}>
-                      <></>
-                    </EditBoardDialog>
+                    <EditBoardDialog board={currentBoard} onBoardUpdate={handleBoardUpdate} isOpen={isEditOpen} onOpenChange={setIsEditOpen} />
                    </>
                 )}
             </div>
