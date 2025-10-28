@@ -52,6 +52,7 @@ export type Board = {
   id: string;
   title: string;
   lists: List[];
+  isFavorite?: boolean;
 };
 
 export type User = {

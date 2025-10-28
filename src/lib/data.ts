@@ -20,6 +20,7 @@ const initialBoards: Board[] = [
   {
     id: 'board-1',
     title: 'Project Phoenix',
+    isFavorite: true,
     lists: [
       {
         id: 'list-1',
@@ -199,7 +200,7 @@ export async function getAvailableLabels(): Promise<Label[]> {
 
 export async function getBoards(): Promise<Board[]> {
   await delay(100);
-  return JSON.parse(JSON.stringify(boards.map(({ id, title }) => ({ id, title, lists: [] }))));
+  return JSON.parse(JSON.stringify(boards));
 }
 
 export async function getBoard(boardId: string): Promise<Board | undefined> {
@@ -241,6 +242,16 @@ export async function createBoard(title: string): Promise<Board> {
   boards.push(newBoard);
   return newBoard;
 }
+
+export async function deleteBoard(boardId: string): Promise<void> {
+    await delay(100);
+    const boardIndex = boards.findIndex(b => b.id === boardId);
+    if (boardIndex === -1) {
+        throw new Error("Board not found");
+    }
+    boards.splice(boardIndex, 1);
+}
+
 
 export async function addList(boardId: string, title: string): Promise<List> {
     await delay(100);

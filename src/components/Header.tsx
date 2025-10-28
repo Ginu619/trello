@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { LayoutGrid, LogOut, User as UserIcon, Search, ChevronsUpDown } from "lucide-react";
+import { LayoutGrid, LogOut, User as UserIcon, Search, MoreHorizontal, Edit, Trash2 } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
 import { Input } from "./ui/input";
 import type { Board } from "@/lib/types";
@@ -26,12 +26,19 @@ import {
   } from "@/components/ui/select"
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { deleteBoard, updateBoard } from "@/lib/data";
+import { useToast } from "@/hooks/use-toast";
+import { EditBoardDialog } from "./kanban/EditBoardDialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "./ui/alert-dialog";
 
 export function Header({ boards, currentBoardId }: { boards?: Board[], currentBoardId?: string }) {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
   const params = useParams();
   const [selectedBoard, setSelectedBoard] = useState(currentBoardId);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     setSelectedBoard(currentBoardId);
@@ -52,6 +59,26 @@ export function Header({ boards, currentBoardId }: { boards?: Board[], currentBo
 
   const currentBoard = boards?.find(b => b.id === selectedBoard);
 
+  const handleBoardUpdate = (updatedBoard: Board) => {
+    // This is a bit tricky since this Header is used on multiple pages
+    // For now, we just refresh the page to get the new title.
+    // A more robust solution would involve a global state manager.
+    toast({ title: 'Board updated!', description: `The board is now named "${updatedBoard.title}".` });
+    window.location.reload();
+  }
+
+  const handleDelete = async () => {
+    if (!currentBoard) return;
+    try {
+      await deleteBoard(currentBoard.id);
+      toast({ title: 'Board deleted' });
+      router.push('/boards');
+    } catch (e) {
+      toast({ variant: 'destructive', title: 'Error deleting board' });
+    }
+  }
+
+
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
@@ -68,7 +95,8 @@ export function Header({ boards, currentBoardId }: { boards?: Board[], currentBo
                     <Input placeholder="Search tasks, projects..." className="pl-9 bg-transparent" />
                 </div>
 
-                {boards && currentBoardId && (
+                {boards && currentBoardId && currentBoard && (
+                    <>
                     <Select value={selectedBoard} onValueChange={handleBoardChange}>
                         <SelectTrigger className="w-[180px] font-semibold text-lg h-9 border-0 bg-transparent shadow-none focus:ring-0">
                             <SelectValue placeholder="Select a board" />
@@ -79,6 +107,41 @@ export function Header({ boards, currentBoardId }: { boards?: Board[], currentBo
                             ))}
                         </SelectContent>
                     </Select>
+
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreHorizontal className="h-5 w-5" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem onClick={() => setIsEditOpen(true)}>
+                          <Edit className="mr-2" /> Edit Board
+                        </DropdownMenuItem>
+                         <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+                           <AlertDialogTrigger asChild>
+                            <DropdownMenuItem onSelect={e => e.preventDefault()} className="text-destructive focus:bg-destructive focus:text-destructive-foreground">
+                              <Trash2 className="mr-2" /> Delete Board
+                            </DropdownMenuItem>
+                           </AlertDialogTrigger>
+                           <AlertDialogContent>
+                             <AlertDialogHeader>
+                               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                               <AlertDialogDescription>This will permanently delete the board "{currentBoard.title}" and all its contents.</AlertDialogDescription>
+                             </AlertDialogHeader>
+                             <AlertDialogFooter>
+                               <AlertDialogCancel>Cancel</AlertDialogCancel>
+                               <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+                             </AlertDialogFooter>
+                           </AlertDialogContent>
+                         </AlertDialog>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    <EditBoardDialog board={currentBoard} onBoardUpdate={handleBoardUpdate} isOpen={isEditOpen} onOpenChange={setIsEditOpen}>
+                      <></>
+                    </EditBoardDialog>
+                   </>
                 )}
             </div>
           <nav className="flex items-center space-x-2">
