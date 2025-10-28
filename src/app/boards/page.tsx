@@ -225,9 +225,7 @@ export default function BoardsPage() {
         onBoardUpdate={handleBoardUpdate}
         isOpen={!!editingBoard}
         onOpenChange={(isOpen) => !isOpen && setEditingBoard(null)}
-      >
-        <></>
-      </EditBoardDialog>
+      />
     )}
 
     {deletingBoard && (

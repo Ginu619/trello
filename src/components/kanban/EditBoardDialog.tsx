@@ -19,7 +19,7 @@ import type { Board } from "@/lib/types";
 interface EditBoardDialogProps {
   board: Board;
   onBoardUpdate: (updatedBoard: Board) => void;
-  children: ReactNode;
+  children?: ReactNode;
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
 }
@@ -62,7 +62,7 @@ export function EditBoardDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Edit board</DialogTitle>
